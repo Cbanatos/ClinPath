@@ -27,7 +27,6 @@
       --danger: #ff453a;
     }
 
-    /* 整體字體跟高度，但稍為細少少 */
     html {
       font-size: 1.7vh;
     }
@@ -44,7 +43,7 @@
       color: var(--text-main);
       height: 100vh;
       width: 100vw;
-      overflow: hidden; /* TV 模式整頁唔捲 */
+      overflow: hidden;
       display: flex;
       justify-content: center;
     }
@@ -56,20 +55,20 @@
       display: flex;
       flex-direction: column;
       padding: 1.5vh;
-      gap: 1.2vh; /* section 之間稍微收窄 */
+      gap: 1.2vh;
     }
 
     /* Header */
     header {
       display: flex;
-      flex-wrap: nowrap;            /* ✅ 一定唔換行 */
+      flex-wrap: nowrap;
       justify-content: space-between;
       align-items: center;
       background: var(--card-bg);
       padding: 1.5vh 2.5vh;
       border-radius: var(--border-radius);
       border-left: 0.7vh solid var(--accent);
-      flex: 0 0 15vh;               /* ✅ 固定高度 */
+      flex: 0 0 15vh;
     }
 
     .time-widget {
@@ -81,7 +80,7 @@
     }
 
     .time-widget h1 {
-      font-size: 3.4rem;            /* 再細少少 */
+      font-size: 3.4rem;
       line-height: 1;
       font-weight: 900;
       letter-spacing: 2px;
@@ -105,11 +104,11 @@
       align-items: center;
       gap: 1.2vh;
       flex: 0 0 auto;
-      max-width: 40%;               /* 再收窄少少 */
+      max-width: 40%;
     }
 
     .weather-icon {
-      font-size: 2.6rem;            /* 再細 */
+      font-size: 2.6rem;
       color: var(--text-main);
     }
 
@@ -140,12 +139,12 @@
 
     /* Notice */
     .notice-board {
-      flex: 0 0 9vh;                /* 整個 block 控高度 */
+      flex: 0 0 9vh;
     }
 
     .notice-board textarea {
       width: 100%;
-      height: 8vh;                  /* 原本 10vh → 8vh */
+      height: 8vh;
       background: var(--card-bg);
       border: 0.2vh solid #3a3a3c;
       border-radius: var(--border-radius);
@@ -165,18 +164,17 @@
       background: var(--card-bg);
       border-radius: var(--border-radius);
       padding: 1.2vh 1.8vh;
-      flex: 1 1 auto;               /* 中間自適應，目標放晒 7 行 */
+      flex: 0 0 auto;          /* ✅ 不再吃剩餘高度，只包內容 */
       display: flex;
       flex-direction: column;
-      overflow: hidden;             /* ✅ 不捲動，強制塞入 */
+      overflow: visible;       /* 不捲動 */
     }
 
     .bench-container-scroll {
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      gap: 0.4vh;                   /* ✅ 行距再收窄 */
-      height: 100%;
+      gap: 0.4vh;
     }
 
     .bench-row {
@@ -192,7 +190,7 @@
 
     .bench-name {
       font-weight: 500;
-      font-size: 1.3rem;            /* 再細少少 */
+      font-size: 1.3rem;
     }
 
     select.staff-select {
@@ -210,7 +208,8 @@
 
     /* Kanban */
     .kanban-container {
-      height: 18vh;                 /* 原本 22vh → 18vh */
+      flex: 1 1 auto;          /* ✅ 由 Kanban 吃晒剩餘高度 */
+      min-height: 18vh;
       display: flex;
       gap: 1.2vh;
       flex-shrink: 0;
