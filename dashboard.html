@@ -27,8 +27,9 @@
       --danger: #ff453a;
     }
 
+    /* 整體字體跟高度，但稍為細少少 */
     html {
-      font-size: 1.8vh;
+      font-size: 1.7vh;
     }
 
     * {
@@ -55,21 +56,20 @@
       display: flex;
       flex-direction: column;
       padding: 1.5vh;
-      gap: 1.5vh;
+      gap: 1.2vh; /* section 之間稍微收窄 */
     }
 
     /* Header */
     header {
       display: flex;
-      flex-wrap: wrap;            /* 窄時可以輕微換行，避免擠爆 */
+      flex-wrap: nowrap;            /* ✅ 一定唔換行 */
       justify-content: space-between;
       align-items: center;
       background: var(--card-bg);
-      padding: 2vh 3vh;
+      padding: 1.5vh 2.5vh;
       border-radius: var(--border-radius);
-      border-left: 0.8vh solid var(--accent);
-      flex-shrink: 0;
-      row-gap: 1vh;
+      border-left: 0.7vh solid var(--accent);
+      flex: 0 0 15vh;               /* ✅ 固定高度 */
     }
 
     .time-widget {
@@ -81,20 +81,20 @@
     }
 
     .time-widget h1 {
-      font-size: 4rem;           /* 原本 5rem → 收細啲 */
+      font-size: 3.4rem;            /* 再細少少 */
       line-height: 1;
       font-weight: 900;
       letter-spacing: 2px;
       font-variant-numeric: tabular-nums;
       color: #fff;
-      text-shadow: 0 0 20px rgba(10, 132, 255, 0.3);
+      text-shadow: 0 0 16px rgba(10, 132, 255, 0.3);
     }
 
     .time-widget p {
       color: var(--accent);
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 500;
-      margin-top: 0.5vh;
+      margin-top: 0.4vh;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -103,13 +103,13 @@
       text-align: right;
       display: flex;
       align-items: center;
-      gap: 1.5vh;              /* 收窄少少 */
+      gap: 1.2vh;
       flex: 0 0 auto;
-      max-width: 45%;
+      max-width: 40%;               /* 再收窄少少 */
     }
 
     .weather-icon {
-      font-size: 3rem;         /* 原本 4rem → 3rem */
+      font-size: 2.6rem;            /* 再細 */
       color: var(--text-main);
     }
 
@@ -117,42 +117,42 @@
       text-align: right;
     }
     .weather-temp {
-      font-size: 2.1rem;       /* 原本 2.5rem → 2.1rem */
+      font-size: 1.8rem;
       font-weight: 700;
     }
     .weather-loc {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
     }
 
     /* Section title */
     .section-title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       text-transform: uppercase;
       letter-spacing: 0.1rem;
       color: var(--accent);
-      margin-bottom: 0.8vh;
+      margin-bottom: 0.5vh;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 1vh;
+      gap: 0.8vh;
     }
 
     /* Notice */
     .notice-board {
-      flex-shrink: 0;
+      flex: 0 0 9vh;                /* 整個 block 控高度 */
     }
 
     .notice-board textarea {
       width: 100%;
-      height: 10vh;            /* 原本 12vh → 釋放啲高度俾 bench */
+      height: 8vh;                  /* 原本 10vh → 8vh */
       background: var(--card-bg);
       border: 0.2vh solid #3a3a3c;
       border-radius: var(--border-radius);
       color: #fff;
-      padding: 1.5vh;
+      padding: 1.2vh;
       font-family: inherit;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       resize: none;
       outline: none;
     }
@@ -164,27 +164,26 @@
     .rotation-list {
       background: var(--card-bg);
       border-radius: var(--border-radius);
-      padding: 1.5vh 2vh;
-      flex-grow: 1;
+      padding: 1.2vh 1.8vh;
+      flex: 1 1 auto;               /* 中間自適應，目標放晒 7 行 */
       display: flex;
       flex-direction: column;
-      overflow-y: auto;        /* ✅ 超出就喺呢個區捲 */
-      overflow-x: hidden;
+      overflow: hidden;             /* ✅ 不捲動，強制塞入 */
     }
 
     .bench-container-scroll {
       display: flex;
       flex-direction: column;
-      justify-content: flex-start; /* ✅ 不再 space-around */
-      gap: 0.6vh;                 /* ✅ 行距細啲，擠多幾行 */
-      height: auto;
+      justify-content: flex-start;
+      gap: 0.4vh;                   /* ✅ 行距再收窄 */
+      height: 100%;
     }
 
     .bench-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.4vh 0;
+      padding: 0.25vh 0;
       border-bottom: 1px solid #3a3a3c;
     }
     .bench-row:last-child {
@@ -193,27 +192,27 @@
 
     .bench-name {
       font-weight: 500;
-      font-size: 1.5rem;
+      font-size: 1.3rem;            /* 再細少少 */
     }
 
     select.staff-select {
       background: #2c2c2e;
       color: #fff;
       border: 1px solid #3a3a3c;
-      padding: 0.6vh 1vh;
-      border-radius: 0.8vh;
+      padding: 0.4vh 0.8vh;
+      border-radius: 0.7vh;
       outline: none;
       cursor: pointer;
-      width: 45%;
-      font-size: 1.3rem;
+      width: 46%;
+      font-size: 1.2rem;
       text-align: center;
     }
 
     /* Kanban */
     .kanban-container {
-      height: 22vh;            /* 原本 28vh → 縮少，留多位俾 bench */
+      height: 18vh;                 /* 原本 22vh → 18vh */
       display: flex;
-      gap: 1.5vh;
+      gap: 1.2vh;
       flex-shrink: 0;
     }
 
@@ -221,18 +220,18 @@
       flex: 1;
       background: var(--card-bg);
       border-radius: var(--border-radius);
-      padding: 1vh;
+      padding: 0.8vh;
       display: flex;
       flex-direction: column;
     }
 
     .col-header {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 900;
       text-align: center;
-      margin-bottom: 1vh;
-      padding-bottom: 0.5vh;
-      border-bottom: 0.3vh solid;
+      margin-bottom: 0.7vh;
+      padding-bottom: 0.4vh;
+      border-bottom: 0.25vh solid;
       text-transform: uppercase;
     }
     .col-todo {
@@ -255,10 +254,10 @@
 
     .task-card {
       background: #2c2c2e;
-      padding: 1vh;
-      margin-bottom: 1vh;
-      border-radius: 0.8vh;
-      font-size: 1.1rem;
+      padding: 0.8vh;
+      margin-bottom: 0.8vh;
+      border-radius: 0.7vh;
+      font-size: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -270,18 +269,18 @@
       border: none;
       color: var(--text-main);
       width: 100%;
-      padding: 1vh;
-      border-radius: 0.8vh;
+      padding: 0.8vh;
+      border-radius: 0.7vh;
       cursor: pointer;
-      margin-top: 0.5vh;
-      font-size: 1rem;
+      margin-top: 0.3vh;
+      font-size: 0.95rem;
       font-weight: bold;
     }
 
     .delete-task {
       color: var(--danger);
-      font-size: 1.2rem;
-      margin-left: 10px;
+      font-size: 1.1rem;
+      margin-left: 8px;
       cursor: pointer;
     }
   </style>
