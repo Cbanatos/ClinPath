@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab Dashboard Control</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --bg-color: #050509;
+      --card-bg: #15151b;
+      --accent: #0a84ff;
+      --text-main: #ffffff;
+      --text-muted: #a0a0b0;
+      --danger: #ff453a;
+      --success: #30d158;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Roboto", sans-serif;
+      background: radial-gradient(circle at top, #202032, #050509);
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: rgba(10, 10, 18, 0.96);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 16px 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+    }
+
+    .card small {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    textarea,
+    select {
+      width: 100%;
+      font-family: inherit;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      background: #111118;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .notice-textarea {
+      min-height: 140px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th,
+    td {
+      padding: 6px 4px;
+      font-size: 0.85rem;
+    }
+
+    th {
+      text-align: left;
+      color: var(--text-muted);
+      font-weight: 500;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    tr:nth-child(odd) td {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    td:first-child {
+      width: 40%;
+      font-weight: 500;
+    }
+
+    select.staff-select {
+      background: #111118;
+    }
+
+    .kanban-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kanban-grid > div h3 {
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .kanban-grid small {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #save-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    #reload-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--text-main);
+    }
+
+    #status {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    #status.ok {
+      color: var(--success);
+    }
+
+    #status.error {
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <h1>Lab Dashboard Control</h1>
+  <p class="subtitle">
+    修改呢度嘅內容 → 自動同步去 Netlify Blobs → TV&nbsp;Dashboard 每 5 秒拉最新資料。
+  </p>
+
+  <div class="grid">
+    <!-- Left: Notice + Bench -->
+    <div class="card">
+      <h2>Notice Board</h2>
+      <small>會同步去 TV 頂部 Notice 區。</small>
+      <textarea
+        id="notice-input"
+        class="notice-textarea"
+        placeholder="寫今日重要事項..."
+      ></textarea>
+
+      <div style="height: 12px"></div>
+
+      <h2>Bench Rotation</h2>
+      <small>修改後按「Save」即可推送到 TV。</small>
+      <table>
+        <thead>
+          <tr>
+            <th>Bench</th>
+            <th>Staff</th>
+          </tr>
+        </thead>
+        <tbody id="bench-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Right: Kanban -->
+    <div class="card">
+      <h2>Kanban Tasks</h2>
+      <small>每行代表一個 task，空行會自動忽略。</small>
+
+      <div class="kanban-grid">
+        <div>
+          <h3>To Do</h3>
+          <small>例如：追 QA report、call client 等</small>
+          <textarea id="todo-input" placeholder="One task per line"></textarea>
+        </div>
+        <div>
+          <h3>In Progress</h3>
+          <small>緊做緊嘅嘢</small>
+          <textarea
+            id="progress-input"
+            placeholder="One task per line"
+          ></textarea>
+        </div>
+        <div>
+          <h3>Done</h3>
+          <small>做完但仲想喺 TV 度顯示</small>
+          <textarea id="done-input" placeholder="One task per line"></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="save-btn">Save to Dashboard</button>
+        <button id="reload-btn" type="button">Reload from Server</button>
+        <span id="status"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "/.netlify/functions/dashboard-state";
+
+    const benches = [
+      "Hematology",
+      "Cobas",
+      "Cytology",
+      "Immulite",
+      "RIA",
+      "Receiving",
+      "Libero",
+    ];
+    const staff = [
+      "-- Select --",
+      "Amparo",
+      "Sandra",
+      "Elsa / Laura",
+      "Grace",
+      "Amal",
+      "Hali",
+      "Shainy",
+      "Jason",
+      "OFF",
+    ];
+
+    const noticeInput = document.getElementById("notice-input");
+    const benchTbody = document.getElementById("bench-tbody");
+    const todoInput = document.getElementById("todo-input");
+    const progressInput = document.getElementById("progress-input");
+    const doneInput = document.getElementById("done-input");
+    const statusEl = document.getElementById("status");
+    const saveBtn = document.getElementById("save-btn");
+    const reloadBtn = document.getElementById("reload-btn");
+
+    const benchSelects = {};
+
+    // 建 bench table
+    function buildBenchRows() {
+      benchTbody.innerHTML = "";
+      benches.forEach((bench) => {
+        const tr = document.createElement("tr");
+
+        const nameTd = document.createElement("td");
+        nameTd.textContent = bench;
+
+        const selectTd = document.createElement("td");
+        const sel = document.createElement("select");
+        sel.className = "staff-select";
+
+        staff.forEach((person) => {
+          const opt = document.createElement("option");
+          opt.value = person;
+          opt.textContent = person;
+          sel.appendChild(opt);
+        });
+
+        benchSelects[bench] = sel;
+        selectTd.appendChild(sel);
+
+        tr.appendChild(nameTd);
+        tr.appendChild(selectTd);
+        benchTbody.appendChild(tr);
+      });
+    }
+
+    buildBenchRows();
+
+    function setStatus(msg, type) {
+      statusEl.textContent = msg || "";
+      statusEl.classList.remove("ok", "error");
+      if (type) statusEl.classList.add(type);
+    }
+
+    function splitLines(value) {
+      return (value || "")
+        .split("\n")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+    }
+
+    function collectStateFromUI() {
+      const benchesState = {};
+      benches.forEach((bench) => {
+        const sel = benchSelects[bench];
+        benchesState[bench] = sel ? sel.value : "-- Select --";
+      });
+
+      return {
+        notice: noticeInput.value || "",
+        benches: benchesState,
+        kanban: {
+          "list-todo": splitLines(todoInput.value),
+          "list-progress": splitLines(progressInput.value),
+          "list-done": splitLines(doneInput.value),
+        },
+      };
+    }
+
+    function applyStateToUI(state) {
+      if (!state) return;
+
+      if (typeof state.notice === "string") {
+        noticeInput.value = state.notice;
+      }
+
+      if (state.benches) {
+        benches.forEach((bench) => {
+          const sel = benchSelects[bench];
+          if (sel && state.benches[bench]) {
+            sel.value = state.benches[bench];
+          }
+        });
+      }
+
+      const k = state.kanban || {};
+      todoInput.value = (k["list-todo"] || []).join("\n");
+      progressInput.value = (k["list-progress"] || []).join("\n");
+      doneInput.value = (k["list-done"] || []).join("\n");
+    }
+
+    async function loadState() {
+      setStatus("Loading...", null);
+      try {
+        const res = await fetch(API_URL, { cache: "no-store" });
+        if (!res.ok) {
+          setStatus(`Load failed (${res.status})`, "error");
+          return;
+        }
+        const state = await res.json();
+        applyStateToUI(state);
+        setStatus("Loaded latest state ✅", "ok");
+      } catch (err) {
+        console.error("Load error", err);
+        setStatus("Load error", "error");
+      }
+    }
+
+    async function saveState() {
+      const payload = collectStateFromUI();
+      setStatus("Saving...", null);
+      saveBtn.disabled = true;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          setStatus(`Save failed (${res.status})`, "error");
+          return;
+        }
+        const saved = await res.json();
+        applyStateToUI(saved); // 回寫一次，確保一致
+        setStatus("Saved & pushed to TV ✅", "ok");
+      } catch (err) {
+        console.error("Save error", err);
+        setStatus("Save error", "error");
+      } finally {
+        saveBtn.disabled = false;
+      }
+    }
+
+    saveBtn.addEventListener("click", saveState);
+    reloadBtn.addEventListener("click", loadState);
+
+    // 頁面載入即刻拉一次資料
+    loadState();
+  </script>
+</body>
+</html>
