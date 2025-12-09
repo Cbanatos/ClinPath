@@ -43,7 +43,7 @@
       color: var(--text-main);
       height: 100vh;
       width: 100vw;
-      overflow: hidden;
+      overflow: hidden; /* TV 模式整頁唔捲 */
       display: flex;
       justify-content: center;
     }
@@ -61,6 +61,7 @@
     /* Header */
     header {
       display: flex;
+      flex-wrap: wrap;            /* 窄時可以輕微換行，避免擠爆 */
       justify-content: space-between;
       align-items: center;
       background: var(--card-bg);
@@ -68,16 +69,19 @@
       border-radius: var(--border-radius);
       border-left: 0.8vh solid var(--accent);
       flex-shrink: 0;
+      row-gap: 1vh;
     }
 
     .time-widget {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .time-widget h1 {
-      font-size: 5rem;
+      font-size: 4rem;           /* 原本 5rem → 收細啲 */
       line-height: 1;
       font-weight: 900;
       letter-spacing: 2px;
@@ -88,7 +92,7 @@
 
     .time-widget p {
       color: var(--accent);
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 500;
       margin-top: 0.5vh;
       text-transform: uppercase;
@@ -99,11 +103,13 @@
       text-align: right;
       display: flex;
       align-items: center;
-      gap: 2vh;
+      gap: 1.5vh;              /* 收窄少少 */
+      flex: 0 0 auto;
+      max-width: 45%;
     }
 
     .weather-icon {
-      font-size: 4rem;
+      font-size: 3rem;         /* 原本 4rem → 3rem */
       color: var(--text-main);
     }
 
@@ -111,7 +117,7 @@
       text-align: right;
     }
     .weather-temp {
-      font-size: 2.5rem;
+      font-size: 2.1rem;       /* 原本 2.5rem → 2.1rem */
       font-weight: 700;
     }
     .weather-loc {
@@ -119,6 +125,7 @@
       color: var(--text-muted);
     }
 
+    /* Section title */
     .section-title {
       font-size: 1.2rem;
       text-transform: uppercase;
@@ -138,7 +145,7 @@
 
     .notice-board textarea {
       width: 100%;
-      height: 12vh;
+      height: 10vh;            /* 原本 12vh → 釋放啲高度俾 bench */
       background: var(--card-bg);
       border: 0.2vh solid #3a3a3c;
       border-radius: var(--border-radius);
@@ -161,21 +168,23 @@
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;        /* ✅ 超出就喺呢個區捲 */
+      overflow-x: hidden;
     }
 
     .bench-container-scroll {
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
-      height: 100%;
+      justify-content: flex-start; /* ✅ 不再 space-around */
+      gap: 0.6vh;                 /* ✅ 行距細啲，擠多幾行 */
+      height: auto;
     }
 
     .bench-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.5vh 0;
+      padding: 0.4vh 0;
       border-bottom: 1px solid #3a3a3c;
     }
     .bench-row:last-child {
@@ -184,25 +193,25 @@
 
     .bench-name {
       font-weight: 500;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
     }
 
     select.staff-select {
       background: #2c2c2e;
       color: #fff;
       border: 1px solid #3a3a3c;
-      padding: 0.8vh 1vh;
+      padding: 0.6vh 1vh;
       border-radius: 0.8vh;
       outline: none;
       cursor: pointer;
       width: 45%;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       text-align: center;
     }
 
     /* Kanban */
     .kanban-container {
-      height: 28vh;
+      height: 22vh;            /* 原本 28vh → 縮少，留多位俾 bench */
       display: flex;
       gap: 1.5vh;
       flex-shrink: 0;
@@ -318,10 +327,7 @@
       >
         <div class="col-header col-todo">TO DO</div>
         <div class="task-list" id="list-todo"></div>
-        <button
-          class="add-task-btn"
-          onclick="addNewTask('list-todo')"
-        >
+        <button class="add-task-btn" onclick="addNewTask('list-todo')">
           <i class="fas fa-plus"></i> Add
         </button>
       </div>
@@ -334,10 +340,7 @@
       >
         <div class="col-header col-progress">In Progress</div>
         <div class="task-list" id="list-progress"></div>
-        <button
-          class="add-task-btn"
-          onclick="addNewTask('list-progress')"
-        >
+        <button class="add-task-btn" onclick="addNewTask('list-progress')">
           <i class="fas fa-plus"></i> Add
         </button>
       </div>
@@ -350,10 +353,7 @@
       >
         <div class="col-header col-done">Done</div>
         <div class="task-list" id="list-done"></div>
-        <button
-          class="add-task-btn"
-          onclick="addNewTask('list-done')"
-        >
+        <button class="add-task-btn" onclick="addNewTask('list-done')">
           <i class="fas fa-plus"></i> Add
         </button>
       </div>
@@ -361,10 +361,9 @@
   </div>
 
   <script>
-    // ====== 0. Backend endpoint (Netlify Function) ======
     const API_URL = "/.netlify/functions/dashboard-state";
 
-    // ====== 1. Clock ======
+    // Clock
     function updateClock() {
       const now = new Date();
       document.getElementById("clock").innerText = now.toLocaleTimeString(
@@ -384,7 +383,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // ====== 2. Weather ======
+    // Weather
     async function fetchWeather() {
       try {
         const response = await fetch(
@@ -415,7 +414,7 @@
     fetchWeather();
     setInterval(fetchWeather, 600000);
 
-    // ====== 3. Bench & Staff ======
+    // Bench & staff
     const benches = [
       "Hematology",
       "Cobas",
@@ -442,14 +441,12 @@
     const benchSelects = {};
     const noticeArea = document.getElementById("notice-area");
 
-    // Kanban tasks（用 object 儲存三個list）
     let tasks = {
       "list-todo": [],
       "list-progress": [],
       "list-done": [],
     };
 
-    // 建立 bench rows
     benches.forEach((bench) => {
       const row = document.createElement("div");
       row.className = "bench-row";
@@ -478,12 +475,11 @@
       benchContainer.appendChild(row);
     });
 
-    // Notice auto-save
     noticeArea.addEventListener("input", () => {
       scheduleSave();
     });
 
-    // ====== 4. Kanban Logic ======
+    // Kanban
     function renderKanban() {
       ["list-todo", "list-progress", "list-done"].forEach((listId) => {
         const listEl = document.getElementById(listId);
@@ -573,7 +569,7 @@
       scheduleSave();
     }
 
-    // ====== 5. 同 Netlify Function 同步 ======
+    // 同 Netlify Function 同步
     function collectStateFromUI() {
       const benchesState = {};
       benches.forEach((bench) => {
@@ -591,7 +587,6 @@
     let saveTimer = null;
     function scheduleSave() {
       if (saveTimer) clearTimeout(saveTimer);
-      // 簡單 debounce，減少 POST 次數
       saveTimer = setTimeout(pushStateToServer, 500);
     }
 
@@ -658,9 +653,7 @@
       }
     }
 
-    // 初次載入狀態
     loadStateFromServer();
-    // 每 5 秒同步一次（控制頁有改動，TV 自動更新）
     setInterval(loadStateFromServer, 5000);
   </script>
 </body>
