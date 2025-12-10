@@ -14,7 +14,13 @@ const benchesList = [
   "Libero",
 ];
 
-// 預設狀態
+// 預設每個區塊高度 (vh)
+const defaultLayout = {
+  notice: 13,
+  rotation: 16,
+  kanban: 24,
+};
+
 const defaultState = {
   notice: "",
   benches: Object.fromEntries(
@@ -25,14 +31,40 @@ const defaultState = {
     "list-progress": [],
     "list-done": [],
   },
+  layout: defaultLayout,
 };
 
 function corsHeaders() {
   return {
-    "Access-Control-Allow-Origin": "*", // 同一 Netlify site 本身唔需要，但咁寫方便之後用其他 domain 控制
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
+}
+
+function normalizeLayout(lay) {
+  const base = defaultLayout;
+  const out = { ...base };
+
+  if (!lay || typeof lay !== "object") return out;
+
+  const keys = ["notice", "rotation", "kanban"];
+
+  keys.forEach((k) => {
+    let v = parseFloat(lay[k]);
+    if (!Number.isFinite(v)) {
+      v = base[k];
+    }
+
+    // 簡單夾一夾範圍，避免太誇張
+    if (k === "notice") v = Math.min(Math.max(v, 8), 25);
+    if (k === "rotation") v = Math.min(Math.max(v, 10), 25);
+    if (k === "kanban") v = Math.min(Math.max(v, 15), 40);
+
+    out[k] = v;
+  });
+
+  return out;
 }
 
 function mergeWithDefaults(raw) {
@@ -61,18 +93,18 @@ function mergeWithDefaults(raw) {
     "list-progress": Array.isArray(kanbanRaw["list-progress"])
       ? kanbanRaw["list-progress"]
       : [],
-    "list-done": Array.isArray(kanbanRaw["list-done"])
-      ? kanbanRaw["list-done"]
-      : [],
+    "list-done": Array.isArray(kanbanRaw["list-done"]) ? kanbanRaw["list-done"] : [],
   };
 
-  return { notice, benches, kanban };
+  // layout
+  const layout = normalizeLayout(incoming.layout);
+
+  return { notice, benches, kanban, layout };
 }
 
 export default async (req, context) => {
   const store = getStore(STORE_NAME);
 
-  // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
@@ -80,7 +112,6 @@ export default async (req, context) => {
     });
   }
 
-  // 讀取狀態
   if (req.method === "GET") {
     const existing = await store.get(STATE_KEY, { type: "json" });
     const state = mergeWithDefaults(existing);
@@ -95,7 +126,6 @@ export default async (req, context) => {
     });
   }
 
-  // 寫入狀態（控制頁 or TV 變更）
   if (req.method === "POST") {
     let body;
     try {
@@ -108,7 +138,7 @@ export default async (req, context) => {
     }
 
     const state = mergeWithDefaults(body);
-    await store.setJSON(STATE_KEY, state); // 用 JSON 模式寫入 :contentReference[oaicite:5]{index=5}
+    await store.setJSON(STATE_KEY, state);
 
     return new Response(JSON.stringify(state), {
       status: 200,
