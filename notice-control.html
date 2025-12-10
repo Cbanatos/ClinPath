@@ -70,7 +70,8 @@
     }
 
     textarea,
-    select {
+    select,
+    input[type="number"] {
       width: 100%;
       font-family: inherit;
       border-radius: 8px;
@@ -83,7 +84,8 @@
     }
 
     textarea:focus,
-    select:focus {
+    select:focus,
+    input[type="number"]:focus {
       border-color: var(--accent);
     }
 
@@ -183,19 +185,50 @@
     #status.error {
       color: var(--danger);
     }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      margin: 14px 0;
+    }
+
+    .layout-section h3 {
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .layout-section small {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .layout-grid label {
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
   </style>
 </head>
 <body>
   <h1>Lab Dashboard Control</h1>
   <p class="subtitle">
-    修改呢度嘅內容 → 自動同步去 Netlify Blobs → TV&nbsp;Dashboard 每 5 秒拉最新資料。
+    修改呢度嘅內容 → 寫入 Netlify Blobs → TV Dashboard 每 5 秒拉最新資料。
+    依家可以調整 Notice / Bench / Kanban 高度 (vh)。
   </p>
 
   <div class="grid">
     <!-- Left: Notice + Bench -->
     <div class="card">
       <h2>Notice Board</h2>
-      <small>會同步去 TV 頂部 Notice 區。</small>
+      <small>會同步到 TV 頂部 Notice 區。</small>
       <textarea
         id="notice-input"
         class="notice-textarea"
@@ -205,7 +238,7 @@
       <div style="height: 12px"></div>
 
       <h2>Bench Rotation</h2>
-      <small>修改後按「Save」即可推送到 TV。</small>
+      <small>修改後按 Save 即可推送到 TV。</small>
       <table>
         <thead>
           <tr>
@@ -217,10 +250,10 @@
       </table>
     </div>
 
-    <!-- Right: Kanban -->
+    <!-- Right: Kanban + Layout -->
     <div class="card">
       <h2>Kanban Tasks</h2>
-      <small>每行代表一個 task，空行會自動忽略。</small>
+      <small>每行代表一個 task，空行會自動略過。</small>
 
       <div class="kanban-grid">
         <div>
@@ -240,6 +273,45 @@
           <h3>Done</h3>
           <small>做完但仲想喺 TV 度顯示</small>
           <textarea id="done-input" placeholder="One task per line"></textarea>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="layout-section">
+        <h3>Layout Heights (vh)</h3>
+        <small>建議 Notice + Bench + Kanban 大約 55–65，Header 佔約 15。</small>
+        <div class="layout-grid">
+          <label>
+            Notice
+            <input
+              type="number"
+              id="layout-notice"
+              min="8"
+              max="25"
+              step="1"
+            />
+          </label>
+          <label>
+            Bench
+            <input
+              type="number"
+              id="layout-rotation"
+              min="10"
+              max="25"
+              step="1"
+            />
+          </label>
+          <label>
+            Kanban
+            <input
+              type="number"
+              id="layout-kanban"
+              min="15"
+              max="40"
+              step="1"
+            />
+          </label>
         </div>
       </div>
 
@@ -285,9 +357,20 @@
     const saveBtn = document.getElementById("save-btn");
     const reloadBtn = document.getElementById("reload-btn");
 
+    const layoutNoticeInput = document.getElementById("layout-notice");
+    const layoutRotationInput = document.getElementById("layout-rotation");
+    const layoutKanbanInput = document.getElementById("layout-kanban");
+
     const benchSelects = {};
 
-    // 建 bench table
+    // 布局高度 (跟 dashboard 一樣 default)
+    let layoutState = { notice: 13, rotation: 16, kanban: 24 };
+
+    function clamp(val, min, max) {
+      return Math.min(Math.max(val, min), max);
+    }
+
+    // 建 bench rows
     function buildBenchRows() {
       benchTbody.innerHTML = "";
       benches.forEach((bench) => {
@@ -331,12 +414,48 @@
         .filter((s) => s.length > 0);
     }
 
+    function readLayoutFromInputs() {
+      const current = { ...layoutState };
+
+      let n = parseFloat(layoutNoticeInput.value);
+      let r = parseFloat(layoutRotationInput.value);
+      let k = parseFloat(layoutKanbanInput.value);
+
+      if (Number.isFinite(n)) current.notice = clamp(n, 8, 25);
+      if (Number.isFinite(r)) current.rotation = clamp(r, 10, 25);
+      if (Number.isFinite(k)) current.kanban = clamp(k, 15, 40);
+
+      layoutState = current;
+
+      layoutNoticeInput.value = layoutState.notice;
+      layoutRotationInput.value = layoutState.rotation;
+      layoutKanbanInput.value = layoutState.kanban;
+
+      return layoutState;
+    }
+
+    function applyLayoutToInputs(layout) {
+      if (layout && typeof layout === "object") {
+        const l = { ...layoutState };
+        ["notice", "rotation", "kanban"].forEach((k) => {
+          const v = parseFloat(layout[k]);
+          if (Number.isFinite(v)) l[k] = v;
+        });
+        layoutState = l;
+      }
+      layoutNoticeInput.value = layoutState.notice;
+      layoutRotationInput.value = layoutState.rotation;
+      layoutKanbanInput.value = layoutState.kanban;
+    }
+
     function collectStateFromUI() {
       const benchesState = {};
       benches.forEach((bench) => {
         const sel = benchSelects[bench];
         benchesState[bench] = sel ? sel.value : "-- Select --";
       });
+
+      const layout = readLayoutFromInputs();
 
       return {
         notice: noticeInput.value || "",
@@ -346,6 +465,7 @@
           "list-progress": splitLines(progressInput.value),
           "list-done": splitLines(doneInput.value),
         },
+        layout,
       };
     }
 
@@ -369,6 +489,8 @@
       todoInput.value = (k["list-todo"] || []).join("\n");
       progressInput.value = (k["list-progress"] || []).join("\n");
       doneInput.value = (k["list-done"] || []).join("\n");
+
+      applyLayoutToInputs(state.layout);
     }
 
     async function loadState() {
@@ -404,7 +526,7 @@
           return;
         }
         const saved = await res.json();
-        applyStateToUI(saved); // 回寫一次，確保一致
+        applyStateToUI(saved);
         setStatus("Saved & pushed to TV ✅", "ok");
       } catch (err) {
         console.error("Save error", err);
@@ -417,7 +539,7 @@
     saveBtn.addEventListener("click", saveState);
     reloadBtn.addEventListener("click", loadState);
 
-    // 頁面載入即刻拉一次資料
+    // 初次載入拉一次
     loadState();
   </script>
 </body>
