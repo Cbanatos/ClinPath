@@ -58,7 +58,7 @@
       gap: 1.2vh;
     }
 
-    /* Header */
+    /* Header 固定高度，大約 15vh */
     header {
       display: flex;
       flex-wrap: nowrap;
@@ -124,7 +124,6 @@
       color: var(--text-muted);
     }
 
-    /* Section title */
     .section-title {
       font-size: 1.1rem;
       text-transform: uppercase;
@@ -137,14 +136,14 @@
       gap: 0.8vh;
     }
 
-    /* Notice */
+    /* Notice: 高度會由 JS 動態 set flex，但呢度先畀 default */
     .notice-board {
-      flex: 0 0 9vh;
+      flex: 0 0 13vh;
     }
 
     .notice-board textarea {
       width: 100%;
-      height: 8vh;
+      height: 12vh;
       background: var(--card-bg);
       border: 0.2vh solid #3a3a3c;
       border-radius: var(--border-radius);
@@ -154,34 +153,35 @@
       font-size: 1.3rem;
       resize: none;
       outline: none;
+      white-space: pre-line;
     }
     .notice-board textarea:focus {
       border-color: var(--accent);
     }
 
-    /* Bench rotation */
+    /* Bench rotation：高度亦由 JS 控制 flex */
     .rotation-list {
       background: var(--card-bg);
       border-radius: var(--border-radius);
-      padding: 1.2vh 1.8vh;
-      flex: 0 0 auto;          /* ✅ 不再吃剩餘高度，只包內容 */
+      padding: 0.8vh 1.6vh;
+      flex: 0 0 16vh;
       display: flex;
       flex-direction: column;
-      overflow: visible;       /* 不捲動 */
+      overflow: hidden;
     }
 
     .bench-container-scroll {
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      gap: 0.4vh;
+      gap: 0.3vh;
     }
 
     .bench-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.25vh 0;
+      padding: 0.15vh 0;
       border-bottom: 1px solid #3a3a3c;
     }
     .bench-row:last-child {
@@ -190,25 +190,25 @@
 
     .bench-name {
       font-weight: 500;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
     }
 
     select.staff-select {
       background: #2c2c2e;
       color: #fff;
       border: 1px solid #3a3a3c;
-      padding: 0.4vh 0.8vh;
+      padding: 0.35vh 0.8vh;
       border-radius: 0.7vh;
       outline: none;
       cursor: pointer;
       width: 46%;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       text-align: center;
     }
 
-    /* Kanban */
+    /* Kanban：吃剩餘高度 */
     .kanban-container {
-      flex: 1 1 auto;          /* ✅ 由 Kanban 吃晒剩餘高度 */
+      flex: 1 1 auto;
       min-height: 18vh;
       display: flex;
       gap: 1.2vh;
@@ -361,7 +361,40 @@
   <script>
     const API_URL = "/.netlify/functions/dashboard-state";
 
-    // Clock
+    // ===== 布局高度（vh） =====
+    let layout = { notice: 13, rotation: 16, kanban: 24 };
+    const noticeSection = document.querySelector(".notice-board");
+    const rotationSection = document.querySelector(".rotation-list");
+    const kanbanSection = document.querySelector(".kanban-container");
+
+    function applyLayoutFromState(newLayout) {
+      if (newLayout && typeof newLayout === "object") {
+        const merged = { ...layout };
+        ["notice", "rotation", "kanban"].forEach((k) => {
+          const v = parseFloat(newLayout[k]);
+          if (Number.isFinite(v)) merged[k] = v;
+        });
+        layout = merged;
+      }
+
+      if (noticeSection) {
+        noticeSection.style.flex = `0 0 ${layout.notice}vh`;
+        const ta = document.getElementById("notice-area");
+        if (ta) ta.style.height = `${layout.notice - 1}vh`;
+      }
+      if (rotationSection) {
+        rotationSection.style.flex = `0 0 ${layout.rotation}vh`;
+      }
+      if (kanbanSection) {
+        kanbanSection.style.flex = "1 1 auto";
+        kanbanSection.style.minHeight = `${layout.kanban}vh`;
+      }
+    }
+
+    // 先套一次 default
+    applyLayoutFromState();
+
+    // ===== Clock =====
     function updateClock() {
       const now = new Date();
       document.getElementById("clock").innerText = now.toLocaleTimeString(
@@ -381,7 +414,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Weather
+    // ===== Weather =====
     async function fetchWeather() {
       try {
         const response = await fetch(
@@ -412,7 +445,7 @@
     fetchWeather();
     setInterval(fetchWeather, 600000);
 
-    // Bench & staff
+    // ===== Bench & staff =====
     const benches = [
       "Hematology",
       "Cobas",
@@ -477,7 +510,7 @@
       scheduleSave();
     });
 
-    // Kanban
+    // ===== Kanban =====
     function renderKanban() {
       ["list-todo", "list-progress", "list-done"].forEach((listId) => {
         const listEl = document.getElementById(listId);
@@ -567,7 +600,7 @@
       scheduleSave();
     }
 
-    // 同 Netlify Function 同步
+    // ===== 跟 Netlify 同步 =====
     function collectStateFromUI() {
       const benchesState = {};
       benches.forEach((bench) => {
@@ -579,6 +612,7 @@
         notice: noticeArea.value || "",
         benches: benchesState,
         kanban: tasks,
+        layout: layout, // 加埋 layout 一齊儲
       };
     }
 
@@ -605,11 +639,16 @@
     }
 
     function applyStateToUI(state) {
-      if (state && typeof state.notice === "string") {
+      if (!state) return;
+
+      // 先套 layout，再套內容
+      applyLayoutFromState(state.layout);
+
+      if (typeof state.notice === "string") {
         noticeArea.value = state.notice;
       }
 
-      if (state && state.benches) {
+      if (state.benches) {
         benches.forEach((bench) => {
           const sel = benchSelects[bench];
           if (sel && state.benches[bench]) {
@@ -618,7 +657,7 @@
         });
       }
 
-      if (state && state.kanban) {
+      if (state.kanban) {
         tasks = {
           "list-todo": Array.isArray(state.kanban["list-todo"])
             ? state.kanban["list-todo"]
