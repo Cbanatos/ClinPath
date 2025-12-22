@@ -14,16 +14,15 @@ const benchesList = [
   "Libero",
 ];
 
-// 預設佈局 (單位為百分比 %)
-// Notice 和 Rotation 設定高度，Kanban 自動填滿剩餘空間
 const defaultLayout = {
-  noticePercent: 15,    // 15% 高度
-  rotationPercent: 20,  // 20% 高度
-  // 剩餘 65% 給 Kanban
+  noticePercent: 15,
+  rotationPercent: 20,
 };
 
 const defaultState = {
-  notice: "",
+  // Notice HTML
+  notice: "<div style='text-align:center;'>Welcome to <b>Lab Dashboard</b></div>",
+  staff: ["Alice", "Bob", "Charlie", "Dave", "Eve"], 
   benches: Object.fromEntries(
     benchesList.map((name) => [name, "-- Select --"])
   ),
@@ -43,56 +42,49 @@ function corsHeaders() {
   };
 }
 
-// 確保數值是合理的百分比
 function normalizeLayout(lay) {
   const base = defaultLayout;
   const out = { ...base };
-
   if (!lay || typeof lay !== "object") return out;
 
-  // 檢查 Notice %
   let n = parseFloat(lay.noticePercent);
-  if (Number.isFinite(n) && n >= 5 && n <= 50) {
-    out.noticePercent = n;
-  }
+  if (Number.isFinite(n) && n >= 5 && n <= 60) out.noticePercent = n;
 
-  // 檢查 Rotation %
   let r = parseFloat(lay.rotationPercent);
-  if (Number.isFinite(r) && r >= 5 && r <= 60) {
-    out.rotationPercent = r;
-  }
+  if (Number.isFinite(r) && r >= 5 && r <= 60) out.rotationPercent = r;
   
-  // 確保兩者加起來不超過 90%，留至少 10% 給 Kanban
+  // 確保總和不超過 100% (留給 Kanban)
   if (out.noticePercent + out.rotationPercent > 90) {
     out.noticePercent = 15;
     out.rotationPercent = 20;
   }
-
   return out;
 }
 
 function mergeWithDefaults(incoming) {
   if (!incoming) return defaultState;
   
-  // 合併 benches
   const benchesRaw = incoming.benches || {};
   const benches = {};
   benchesList.forEach(b => {
     benches[b] = benchesRaw[b] || "-- Select --";
   });
 
-  // 合併 kanban (保持陣列)
   const kanbanRaw = incoming.kanban || {};
+  const ensureArray = (arr) => Array.isArray(arr) ? arr : [];
+
   const kanban = {
-    "list-todo": Array.isArray(kanbanRaw["list-todo"]) ? kanbanRaw["list-todo"] : [],
-    "list-progress": Array.isArray(kanbanRaw["list-progress"]) ? kanbanRaw["list-progress"] : [],
-    "list-done": Array.isArray(kanbanRaw["list-done"]) ? kanbanRaw["list-done"] : [],
+    "list-todo": ensureArray(kanbanRaw["list-todo"]),
+    "list-progress": ensureArray(kanbanRaw["list-progress"]),
+    "list-done": ensureArray(kanbanRaw["list-done"]),
   };
 
+  const staff = Array.isArray(incoming.staff) ? incoming.staff : defaultState.staff;
   const layout = normalizeLayout(incoming.layout);
-
+  
   return { 
     notice: incoming.notice || "", 
+    staff, 
     benches, 
     kanban, 
     layout 
@@ -103,23 +95,15 @@ export default async (req, context) => {
   const store = getStore(STORE_NAME);
 
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders(),
-    });
+    return new Response(null, { status: 204, headers: corsHeaders() });
   }
 
   if (req.method === "GET") {
     const existing = await store.get(STATE_KEY, { type: "json" });
     const state = mergeWithDefaults(existing);
-
     return new Response(JSON.stringify(state), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store",
-        ...corsHeaders(),
-      },
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...corsHeaders() },
     });
   }
 

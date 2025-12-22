@@ -4,19 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lab Dashboard Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
-            padding: 20px 15px;
+            padding: 20px 10px;
             color: #333;
+            padding-bottom: 80px;
         }
 
         .control-panel {
             background-color: #fff;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             width: 100%;
@@ -24,17 +26,17 @@
             margin: 0 auto;
         }
 
-        h2 { text-align: center; color: #2c3e50; margin-top: 0; }
+        h2 { text-align: center; color: #2c3e50; margin-top: 0; margin-bottom: 20px; }
 
         .control-group {
             margin-bottom: 25px;
-            padding-bottom: 15px;
+            padding-bottom: 20px;
             border-bottom: 1px solid #eee;
         }
 
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        label { display: block; margin-bottom: 8px; font-weight: 700; color: #444; font-size: 1rem; }
 
-        input[type="text"], textarea {
+        input[type="text"], input[type="number"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -42,296 +44,381 @@
             font-size: 16px;
             margin-bottom: 10px;
         }
+
+        /* === WYSIWYG === */
+        .wysiwyg-container { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff; }
+        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 5px; background: #f8f9fa; padding: 8px; border-bottom: 1px solid #ddd; align-items: center; }
+        .toolbar-group { display: flex; gap: 2px; padding-right: 8px; margin-right: 8px; border-right: 1px solid #ddd; align-items: center; }
+        .toolbar-group:last-child { border: none; margin: 0; padding: 0; }
+        .tool-btn { background: transparent; border: 1px solid transparent; color: #555; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.2s; }
+        .tool-btn:hover { background: #e2e6ea; color: #000; }
+        .size-select { padding: 4px; border-radius: 4px; border: 1px solid #ddd; color: #555; background: #fff; margin-right: 5px; font-size: 0.9rem; cursor: pointer; }
+        .color-picker-group { display: flex; gap: 6px; }
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.1s; }
+        .rich-editor { width: 100%; min-height: 150px; padding: 15px; font-size: 18px; background: #fff; outline: none; overflow-y: auto; line-height: 1.5; }
         
-        textarea { height: 80px; resize: vertical; }
+        /* === Staff Manager === */
+        .staff-manager-container { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .staff-input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .staff-list-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag-pill { background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+        .tag-remove { color: #ff6b6b; cursor: pointer; font-weight: bold; padding: 0 2px; }
 
-        /* Bench Grid */
-        .bench-inputs {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-        @media (min-width: 600px) {
-            .bench-inputs { grid-template-columns: 1fr 1fr; }
-        }
+        /* === Bench === */
+        .bench-inputs { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .bench-item { background: #fff; padding: 5px; }
+        .bench-label { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #555; }
+        .chip-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; padding-right: 50px; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-right: -10px; padding-left: 2px; }
+        .chip-container::-webkit-scrollbar { display: none; }
+        .chip { flex: 0 0 auto; background: #eee; color: #333; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; user-select: none; white-space: nowrap; }
+        .chip.active { background: #3498db; color: white; border-color: #2980b9; }
 
-        /* Layout Sliders */
-        .slider-container {
-            margin-bottom: 15px;
-        }
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        input[type=range] {
-            width: 100%;
-            height: 8px;
-            background: #d3d3d3;
-            outline: none;
-            border-radius: 4px;
-            -webkit-appearance: none;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            background: #3498db;
-            cursor: pointer;
-            border-radius: 50%;
-        }
+        /* === Kanban === */
+        .kanban-section { background: #fdfdfd; border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+        .kanban-header { font-weight: bold; color: #555; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .task-list-display { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+        .task-item-row { display: flex; align-items: center; background: #fff; border: 1px solid #e0e0e0; padding: 8px; border-radius: 6px; font-size: 0.95rem; gap: 10px; }
+        .task-content-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .task-info { display: flex; flex-direction: column; }
+        .task-staff-badge { font-size: 0.75rem; color: #fff; background: #0a84ff; padding: 2px 8px; border-radius: 10px; width: fit-content; margin-top: 2px; }
+        .task-actions { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+        .btn-icon { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #eee; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1rem; background: #f9f9f9; color: #555; transition: all 0.2s; }
+        .btn-icon:hover { background: #eee; }
+        .btn-move-next { color: #27ae60; background: #eafaf1; border-color: #d5f5e3; }
+        .btn-move-prev { color: #f39c12; background: #fef9e7; border-color: #fce5cd; }
+        .btn-delete { color: #c0392b; background: #fff5f5; border-color: #fadbd8; margin-left: 5px; }
+        .kanban-add-area { background: #f0f4f8; padding: 10px; border-radius: 6px; }
+        .kanban-add-area input { margin-bottom: 8px; font-size: 0.9rem; padding: 8px; }
+        .small-help { font-size: 0.75rem; color: #666; margin-bottom: 4px; }
 
-        /* Kanban Simple Edit */
-        .kanban-edit-row {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .k-title { font-weight: bold; font-size: 0.9rem; color: #777; }
-
-        /* Buttons */
         .actions { display: flex; gap: 10px; margin-top: 20px; }
-        button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        #save-btn { background-color: #2ecc71; color: white; }
-        #refresh-btn { background-color: #95a5a6; color: white; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-primary { background-color: #2ecc71; color: white; }
+        .btn-secondary { background-color: #95a5a6; color: white; }
+        .btn-small { padding: 8px 16px; font-size: 14px; flex: 0 0 auto; }
 
-        #status { text-align: center; margin-bottom: 15px; font-weight: 500; min-height: 24px; }
-        .success { color: #27ae60; }
-        .error { color: #c0392b; }
+        #status { text-align: center; margin-bottom: 15px; font-weight: 500; min-height: 24px; font-size: 0.9rem; }
+        .success { color: #27ae60; background: #e8f8f5; padding: 8px; border-radius: 4px; }
+        .error { color: #c0392b; background: #fdedec; padding: 8px; border-radius: 4px; }
+        .demo-mode { color: #ff9f0a; background: #fff5e6; padding: 8px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <div class="control-panel">
         <h2>Dashboard Control</h2>
-        <div id="status">Loading...</div>
+        <div id="status">Connecting...</div>
 
         <!-- 1. Notice -->
         <div class="control-group">
-            <label>Notice Board</label>
-            <textarea id="notice-text" placeholder="Announcement..."></textarea>
-        </div>
-
-        <!-- 2. Bench Rotation -->
-        <div class="control-group">
-            <label>Staff Rotation</label>
-            <div class="bench-inputs" id="bench-inputs">
-                <!-- JS Generated -->
-            </div>
-        </div>
-
-        <!-- 3. Layout Sliders (NEW) -->
-        <div class="control-group">
-            <label>Display Layout Adjustments (Slide to Resize)</label>
-            
-            <div class="slider-container">
-                <div class="slider-label">
-                    <span>Notice Area Height</span>
-                    <span id="val-notice">15%</span>
+            <label>📢 Notice Board</label>
+            <div class="wysiwyg-container">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('undo')"><i class="fas fa-undo"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('redo')"><i class="fas fa-redo"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('bold')"><i class="fas fa-bold"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('italic')"><i class="fas fa-italic"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('underline')"><i class="fas fa-underline"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('justifyLeft')"><i class="fas fa-align-left"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('justifyCenter')"><i class="fas fa-align-center"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('justifyRight')"><i class="fas fa-align-right"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <select class="size-select" onchange="fmt('fontSize', this.value); this.value='';" title="Font Size">
+                            <option value="">Size</option>
+                            <option value="3">Normal</option>
+                            <option value="5">Large</option>
+                            <option value="6">Huge</option>
+                            <option value="7">Max</option>
+                        </select>
+                        <div class="color-picker-group">
+                            <div class="color-dot" style="background:#333333" onmousedown="event.preventDefault(); fmt('foreColor', '#ffffff')"></div>
+                            <div class="color-dot" style="background:#ff453a" onmousedown="event.preventDefault(); fmt('foreColor', '#ff453a')"></div>
+                            <div class="color-dot" style="background:#ff9f0a" onmousedown="event.preventDefault(); fmt('foreColor', '#ff9f0a')"></div>
+                            <div class="color-dot" style="background:#30d158" onmousedown="event.preventDefault(); fmt('foreColor', '#30d158')"></div>
+                            <div class="color-dot" style="background:#0a84ff" onmousedown="event.preventDefault(); fmt('foreColor', '#0a84ff')"></div>
+                        </div>
+                    </div>
+                    <div class="toolbar-group" style="margin-left:auto; border:none">
+                        <button class="tool-btn" onmousedown="event.preventDefault(); fmt('removeFormat')"><i class="fas fa-eraser"></i></button>
+                    </div>
                 </div>
-                <input type="range" id="rng-notice" min="5" max="50" step="1" value="15">
-            </div>
-
-            <div class="slider-container">
-                <div class="slider-label">
-                    <span>Bench Rotation Height</span>
-                    <span id="val-rotation">20%</span>
-                </div>
-                <input type="range" id="rng-rotation" min="5" max="60" step="1" value="20">
-            </div>
-            
-            <div style="text-align: right; font-size: 0.85rem; color: #888;">
-                Remaining space is for Kanban.
+                <div id="notice-editor" class="rich-editor" contenteditable="true" placeholder="Type here..."></div>
             </div>
         </div>
 
-        <!-- 4. Kanban Quick Edit (Simplified for now) -->
+        <!-- 2. Staff Manager -->
         <div class="control-group">
-            <label>Kanban Tasks (Comma separated for quick add)</label>
-            <div class="kanban-edit-row">
-                <span class="k-title">To Do</span>
-                <input type="text" id="k-todo" placeholder="Task 1, Task 2...">
+            <label>👥 Team Members</label>
+            <div class="staff-manager-container">
+                <div class="staff-input-row">
+                    <input type="text" id="new-staff-name" placeholder="Name..." style="margin-bottom:0;">
+                    <button class="btn-primary btn-small" id="add-staff-btn">Add</button>
+                </div>
+                <div class="staff-list-tags" id="staff-list-display"></div>
             </div>
-            <div class="kanban-edit-row">
-                <span class="k-title">In Progress</span>
-                <input type="text" id="k-progress" placeholder="...">
+        </div>
+
+        <!-- 3. Bench Rotation -->
+        <div class="control-group">
+            <label>🔬 Staff Rotation</label>
+            <div class="bench-inputs" id="bench-inputs"></div>
+        </div>
+
+        <!-- 4. Kanban -->
+        <div class="control-group">
+            <label>📋 Kanban Tasks</label>
+            
+            <div class="kanban-section">
+                <div class="kanban-header">To Do <span id="count-todo">0</span></div>
+                <div class="task-list-display" id="list-display-todo"></div>
+                <div class="kanban-add-area">
+                    <input type="text" id="input-todo" placeholder="Task...">
+                    <div class="chip-container" id="chips-todo"></div>
+                </div>
             </div>
-            <div class="kanban-edit-row">
-                <span class="k-title">Done</span>
-                <input type="text" id="k-done" placeholder="...">
+
+            <div class="kanban-section">
+                <div class="kanban-header">In Progress <span id="count-progress">0</span></div>
+                <div class="task-list-display" id="list-display-progress"></div>
+                <div class="kanban-add-area">
+                    <input type="text" id="input-progress" placeholder="Task...">
+                    <div class="chip-container" id="chips-progress"></div>
+                </div>
+            </div>
+
+            <div class="kanban-section">
+                <div class="kanban-header">Done <span id="count-done">0</span></div>
+                <div class="task-list-display" id="list-display-done"></div>
+                <div class="kanban-add-area">
+                    <input type="text" id="input-done" placeholder="Task...">
+                    <div class="chip-container" id="chips-done"></div>
+                </div>
             </div>
         </div>
 
         <div class="actions">
-            <button id="save-btn">Save Changes</button>
-            <button id="refresh-btn">Refresh</button>
+            <button class="btn-primary" id="save-btn">Save Changes</button>
+            <button class="btn-secondary" id="refresh-btn">Refresh</button>
         </div>
     </div>
 
     <script>
         const API_ENDPOINT = '/.netlify/functions/dashboard-state';
         const benchesList = ["Hematology", "Cobas", "Cytology", "Immulite", "RIA", "Receiving", "Libero"];
+        const kanbanLists = ["todo", "progress", "done"];
+
+        // MOCK DATA for preview
+        const MOCK_STATE = {
+            notice: "<div style='text-align:center'>Welcome to <b>Lab Dashboard</b></div>",
+            staff: ["Alice", "Bob", "Charlie", "Dave", "Eve"],
+            benches: { "Hematology": "Alice", "Cobas": "Bob" },
+            kanban: { "list-todo": [{id:1, text:"Review QC", staff:"Alice"}], "list-progress":[], "list-done":[] },
+            layout: { noticePercent: 15, rotationPercent: 20 }
+        };
+
+        let staffList = [];
+        let kanbanData = { "todo": [], "progress": [], "done": [] };
+        let currentState = null;
 
         // Elements
-        const elNotice = document.getElementById('notice-text');
+        const elEditor = document.getElementById('notice-editor');
         const divBenches = document.getElementById('bench-inputs');
-        const rngNotice = document.getElementById('rng-notice');
-        const rngRotation = document.getElementById('rng-rotation');
-        const valNotice = document.getElementById('val-notice');
-        const valRotation = document.getElementById('val-rotation');
-        const kTodo = document.getElementById('k-todo');
-        const kProgress = document.getElementById('k-progress');
-        const kDone = document.getElementById('k-done');
+        const divStaffList = document.getElementById('staff-list-display');
+        const inpNewStaff = document.getElementById('new-staff-name');
+        const btnAddStaff = document.getElementById('add-staff-btn');
         const btnSave = document.getElementById('save-btn');
         const btnRefresh = document.getElementById('refresh-btn');
         const elStatus = document.getElementById('status');
 
-        let currentState = null;
+        window.fmt = (cmd, val) => { document.execCommand(cmd, false, val); elEditor.focus(); };
 
-        // --- Helpers ---
         function setStatus(msg, type) {
-            elStatus.textContent = msg;
-            elStatus.className = type;
-            if(type === 'success') setTimeout(() => elStatus.textContent = '', 3000);
+            elStatus.textContent = msg; 
+            elStatus.className = type === 'demo' ? 'demo-mode' : type;
+            if(type==='success') setTimeout(()=>elStatus.textContent='', 3000);
         }
 
-        // --- Sliders UI ---
-        function updateSliderLabels() {
-            valNotice.textContent = rngNotice.value + '%';
-            valRotation.textContent = rngRotation.value + '%';
+        // --- Staff Manager ---
+        function renderStaffManager() {
+            divStaffList.innerHTML = '';
+            staffList.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'tag-pill';
+                tag.innerHTML = `${name} <span class="tag-remove" data-name="${name}">×</span>`;
+                divStaffList.appendChild(tag);
+            });
+            renderAllBenchChips(); renderAllKanbanChips();
         }
-        rngNotice.addEventListener('input', updateSliderLabels);
-        rngRotation.addEventListener('input', updateSliderLabels);
+        btnAddStaff.addEventListener('click', () => {
+            const name = inpNewStaff.value.trim();
+            if(name && !staffList.includes(name)) { staffList.push(name); inpNewStaff.value = ''; renderStaffManager(); }
+        });
+        divStaffList.addEventListener('click', (e) => {
+            if(e.target.classList.contains('tag-remove')) {
+                staffList = staffList.filter(n => n !== e.target.dataset.name); renderStaffManager();
+            }
+        });
 
-        // --- Build Bench UI ---
+        // --- Bench Logic ---
         function buildBenchUI() {
             divBenches.innerHTML = '';
             benchesList.forEach(bench => {
                 const wrap = document.createElement('div');
-                const lbl = document.createElement('div');
-                lbl.style.fontSize = '0.85rem';
-                lbl.style.marginBottom = '4px';
-                lbl.textContent = bench;
-                
-                const inp = document.createElement('input');
-                inp.type = 'text';
-                inp.dataset.bench = bench;
-                inp.placeholder = 'Staff Name';
-                
-                wrap.appendChild(lbl);
-                wrap.appendChild(inp);
+                wrap.className = 'bench-item';
+                wrap.innerHTML = `<div class="bench-label">${bench}</div><input type="text" data-bench="${bench}" class="bench-input-field" placeholder="..."><div class="chip-container" id="chips-${bench}"></div>`;
                 divBenches.appendChild(wrap);
+                wrap.querySelector('input').addEventListener('input', (e) => updateChipActiveState(bench, e.target.value));
             });
         }
-        buildBenchUI();
+        function renderAllBenchChips() {
+            benchesList.forEach(bench => {
+                const container = document.getElementById(`chips-${bench}`);
+                if(!container) return;
+                const currentVal = document.querySelector(`input[data-bench="${bench}"]`).value;
+                container.innerHTML = '';
+                const clearChip = document.createElement('div');
+                clearChip.className = 'chip'; clearChip.textContent = '⛔';
+                clearChip.onclick = () => { document.querySelector(`input[data-bench="${bench}"]`).value = ''; updateChipActiveState(bench, ''); };
+                container.appendChild(clearChip);
+                staffList.forEach(staff => {
+                    const chip = document.createElement('div');
+                    chip.className = 'chip';
+                    if(staff === currentVal) chip.classList.add('active');
+                    chip.textContent = staff;
+                    chip.onclick = () => { document.querySelector(`input[data-bench="${bench}"]`).value = staff; updateChipActiveState(bench, staff); };
+                    container.appendChild(chip);
+                });
+            });
+        }
+        function updateChipActiveState(bench, activeName) {
+            const container = document.getElementById(`chips-${bench}`);
+            if(!container) return;
+            Array.from(container.children).forEach(c => c.classList.toggle('active', c.textContent === activeName));
+        }
 
-        // --- Data Logic ---
+        // --- Kanban Logic ---
+        function renderAllKanbanChips() {
+            kanbanLists.forEach(key => {
+                const container = document.getElementById(`chips-${key}`);
+                const input = document.getElementById(`input-${key}`);
+                if(!container) return;
+                container.innerHTML = '';
+                const noStaff = document.createElement('div');
+                noStaff.className = 'chip'; noStaff.textContent = '+ Task Only'; noStaff.style.background = '#ddd';
+                noStaff.onclick = () => addKanbanTask(key, input.value, null);
+                container.appendChild(noStaff);
+                staffList.forEach(staff => {
+                    const chip = document.createElement('div');
+                    chip.className = 'chip'; chip.textContent = `+ ${staff}`;
+                    chip.onclick = () => addKanbanTask(key, input.value, staff);
+                    container.appendChild(chip);
+                });
+            });
+        }
+        function addKanbanTask(listKey, taskText, staffName) {
+            if(!taskText || taskText.trim() === "") return;
+            kanbanData[listKey].push({ id: Date.now(), text: taskText.trim(), staff: staffName });
+            document.getElementById(`input-${listKey}`).value = ''; renderKanbanList(listKey);
+        }
+        function moveKanbanTask(taskId, source, target) {
+            const list = kanbanData[source];
+            const idx = list.findIndex(t => (typeof t === 'string' ? t === taskId : t.id == taskId));
+            if (idx !== -1) {
+                const task = list[idx]; kanbanData[source].splice(idx, 1); kanbanData[target].push(task);
+                renderKanbanList(source); renderKanbanList(target);
+            }
+        }
+        function removeKanbanTask(listKey, taskId) {
+            kanbanData[listKey] = kanbanData[listKey].filter(t => (typeof t === 'string' ? t !== taskId : t.id != taskId));
+            renderKanbanList(listKey);
+        }
+        function renderKanbanList(listKey) {
+            const container = document.getElementById(`list-display-${listKey}`);
+            document.getElementById(`count-${listKey}`).innerText = kanbanData[listKey].length;
+            container.innerHTML = '';
+            kanbanData[listKey].forEach(task => {
+                const row = document.createElement('div'); row.className = 'task-item-row';
+                let displayHtml = '', taskId = null;
+                if(typeof task === 'string') { displayHtml = `<span>${task}</span>`; taskId = task; }
+                else { displayHtml = `<span>${task.text}</span>${task.staff ? `<span class="task-staff-badge">${task.staff}</span>` : ''}`; taskId = task.id; }
+                
+                let btns = '';
+                if(listKey === 'progress' || listKey === 'done') btns += `<div class="btn-icon btn-move-prev" onclick="moveKanbanTask('${taskId}', '${listKey}', '${listKey === 'done' ? 'progress' : 'todo'}')"><i class="fas fa-arrow-left"></i></div>`;
+                if(listKey === 'todo' || listKey === 'progress') btns += `<div class="btn-icon btn-move-next" onclick="moveKanbanTask('${taskId}', '${listKey}', '${listKey === 'todo' ? 'progress' : 'done'}')"><i class="fas fa-arrow-right"></i></div>`;
+                btns += `<div class="btn-icon btn-delete" onclick="removeKanbanTask('${listKey}', '${taskId}')"><i class="fas fa-times"></i></div>`;
+                row.innerHTML = `<div class="task-content-wrapper">${displayHtml}</div><div class="task-actions">${btns}</div>`;
+                container.appendChild(row);
+            });
+        }
+        window.moveKanbanTask = moveKanbanTask; window.removeKanbanTask = removeKanbanTask;
+
+        // --- Load & Save ---
         async function loadData() {
-            setStatus('Loading...', '');
+            setStatus('Connecting...', '');
             try {
-                const res = await fetch(`${API_ENDPOINT}?t=${Date.now()}`);
-                if(!res.ok) throw new Error('Fetch failed');
-                currentState = await res.json();
-                populateUI(currentState);
-                setStatus('Ready', 'success');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                const res = await fetch(`${API_ENDPOINT}?t=${Date.now()}`, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if(!res.ok) throw new Error();
+                const data = await res.json();
+                currentState = data; populateUI(data); setStatus('Connected', 'success');
             } catch(e) {
-                setStatus('Error loading data', 'error');
+                setStatus('Demo Mode', 'demo'); currentState = MOCK_STATE; populateUI(MOCK_STATE);
             }
         }
 
         function populateUI(data) {
             if(!data) return;
+            staffList = (data.staff && Array.isArray(data.staff)) ? data.staff : MOCK_STATE.staff;
+            renderStaffManager();
+            elEditor.innerHTML = data.notice || '';
             
-            // Notice
-            elNotice.value = data.notice || '';
-
-            // Benches
-            const benchInputs = divBenches.querySelectorAll('input');
-            benchInputs.forEach(inp => {
-                const name = inp.dataset.bench;
-                if(data.benches && data.benches[name]) {
-                    inp.value = data.benches[name] === '-- Select --' ? '' : data.benches[name];
-                }
+            const benches = data.benches || {};
+            divBenches.querySelectorAll('input.bench-input-field').forEach(inp => {
+                inp.value = benches[inp.dataset.bench] && benches[inp.dataset.bench] !== '-- Select --' ? benches[inp.dataset.bench] : '';
             });
+            renderAllBenchChips();
 
-            // Layout
-            if(data.layout) {
-                rngNotice.value = data.layout.noticePercent || 15;
-                rngRotation.value = data.layout.rotationPercent || 20;
-                updateSliderLabels();
-            }
-
-            // Kanban (Arrays to Comma String)
             if(data.kanban) {
-                kTodo.value = (data.kanban['list-todo'] || []).join(', ');
-                kProgress.value = (data.kanban['list-progress'] || []).join(', ');
-                kDone.value = (data.kanban['list-done'] || []).join(', ');
+                kanbanData.todo = data.kanban['list-todo'] || [];
+                kanbanData.progress = data.kanban['list-progress'] || [];
+                kanbanData.done = data.kanban['list-done'] || [];
+                kanbanLists.forEach(k => renderKanbanList(k));
             }
         }
 
         async function saveData() {
-            setStatus('Saving...', '');
-            btnSave.disabled = true;
-
-            // Prepare Benches
+            setStatus('Saving...', ''); btnSave.disabled = true;
             const benches = {};
-            divBenches.querySelectorAll('input').forEach(inp => {
+            divBenches.querySelectorAll('input.bench-input-field').forEach(inp => {
                 benches[inp.dataset.bench] = inp.value.trim() || '-- Select --';
             });
-
-            // Prepare Kanban (String to Array)
-            const parseKanban = (str) => str.split(',').map(s => s.trim()).filter(s => s);
-            const kanban = {
-                'list-todo': parseKanban(kTodo.value),
-                'list-progress': parseKanban(kProgress.value),
-                'list-done': parseKanban(kDone.value)
-            };
-
             const payload = {
-                notice: elNotice.value,
+                notice: elEditor.innerHTML,
+                staff: staffList,
                 benches: benches,
-                kanban: kanban,
-                layout: {
-                    noticePercent: parseInt(rngNotice.value),
-                    rotationPercent: parseInt(rngRotation.value)
-                }
+                kanban: { 'list-todo': kanbanData.todo, 'list-progress': kanbanData.progress, 'list-done': kanbanData.done },
+                layout: (currentState && currentState.layout) ? currentState.layout : { noticePercent: 15, rotationPercent: 20 }
             };
-
             try {
-                const res = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                if(!res.ok) throw new Error('Save failed');
-                setStatus('Saved!', 'success');
-                currentState = payload; // optimist update
-            } catch(e) {
-                setStatus('Error saving', 'error');
-            } finally {
-                btnSave.disabled = false;
-            }
+                const res = await fetch(API_ENDPOINT, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                if(!res.ok) throw new Error();
+                setStatus('Saved!', 'success'); currentState = payload;
+            } catch(e) { setStatus('Save Error (Demo)', 'error'); } 
+            finally { btnSave.disabled = false; }
         }
 
+        buildBenchUI();
         btnRefresh.addEventListener('click', loadData);
         btnSave.addEventListener('click', saveData);
         loadData();
-
     </script>
 </body>
 </html>
