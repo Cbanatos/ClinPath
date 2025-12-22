@@ -1,546 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lab Dashboard Control</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    :root {
-      --bg-color: #050509;
-      --card-bg: #15151b;
-      --accent: #0a84ff;
-      --text-main: #ffffff;
-      --text-muted: #a0a0b0;
-      --danger: #ff453a;
-      --success: #30d158;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lab Dashboard Control</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px 15px;
+            color: #333;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        .control-panel {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-    body {
-      font-family: "Roboto", sans-serif;
-      background: radial-gradient(circle at top, #202032, #050509);
-      color: var(--text-main);
-      padding: 24px;
-      min-height: 100vh;
-    }
+        h2 { text-align: center; color: #2c3e50; margin-top: 0; }
 
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 8px;
-    }
+        .control-group {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
 
-    .subtitle {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
-      gap: 20px;
-      align-items: flex-start;
-    }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        textarea { height: 80px; resize: vertical; }
 
-    .card {
-      background: rgba(10, 10, 18, 0.96);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 16px 18px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-    }
+        /* Bench Grid */
+        .bench-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        @media (min-width: 600px) {
+            .bench-inputs { grid-template-columns: 1fr 1fr; }
+        }
 
-    .card h2 {
-      font-size: 1.1rem;
-      margin-bottom: 6px;
-    }
+        /* Layout Sliders */
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        input[type=range] {
+            width: 100%;
+            height: 8px;
+            background: #d3d3d3;
+            outline: none;
+            border-radius: 4px;
+            -webkit-appearance: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #3498db;
+            cursor: pointer;
+            border-radius: 50%;
+        }
 
-    .card small {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
+        /* Kanban Simple Edit */
+        .kanban-edit-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .k-title { font-weight: bold; font-size: 0.9rem; color: #777; }
 
-    textarea,
-    select,
-    input[type="number"] {
-      width: 100%;
-      font-family: inherit;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      background: #111118;
-      color: var(--text-main);
-      outline: none;
-    }
+        /* Buttons */
+        .actions { display: flex; gap: 10px; margin-top: 20px; }
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #save-btn { background-color: #2ecc71; color: white; }
+        #refresh-btn { background-color: #95a5a6; color: white; }
 
-    textarea:focus,
-    select:focus,
-    input[type="number"]:focus {
-      border-color: var(--accent);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .notice-textarea {
-      min-height: 140px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th,
-    td {
-      padding: 6px 4px;
-      font-size: 0.85rem;
-    }
-
-    th {
-      text-align: left;
-      color: var(--text-muted);
-      font-weight: 500;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    tr:nth-child(odd) td {
-      background: rgba(255, 255, 255, 0.01);
-    }
-
-    td:first-child {
-      width: 40%;
-      font-weight: 500;
-    }
-
-    select.staff-select {
-      background: #111118;
-    }
-
-    .kanban-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .kanban-grid > div h3 {
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-    }
-
-    .kanban-grid small {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .actions {
-      margin-top: 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 8px 18px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    #save-btn {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    #reload-btn {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: var(--text-main);
-    }
-
-    #status {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    #status.ok {
-      color: var(--success);
-    }
-
-    #status.error {
-      color: var(--danger);
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      margin: 14px 0;
-    }
-
-    .layout-section h3 {
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-    }
-
-    .layout-section small {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .layout-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .layout-grid label {
-      font-size: 0.8rem;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-  </style>
+        #status { text-align: center; margin-bottom: 15px; font-weight: 500; min-height: 24px; }
+        .success { color: #27ae60; }
+        .error { color: #c0392b; }
+    </style>
 </head>
 <body>
-  <h1>Lab Dashboard Control</h1>
-  <p class="subtitle">
-    修改呢度嘅內容 → 寫入 Netlify Blobs → TV Dashboard 每 5 秒拉最新資料。
-    依家可以調整 Notice / Bench / Kanban 高度 (vh)。
-  </p>
 
-  <div class="grid">
-    <!-- Left: Notice + Bench -->
-    <div class="card">
-      <h2>Notice Board</h2>
-      <small>會同步到 TV 頂部 Notice 區。</small>
-      <textarea
-        id="notice-input"
-        class="notice-textarea"
-        placeholder="寫今日重要事項..."
-      ></textarea>
+    <div class="control-panel">
+        <h2>Dashboard Control</h2>
+        <div id="status">Loading...</div>
 
-      <div style="height: 12px"></div>
+        <!-- 1. Notice -->
+        <div class="control-group">
+            <label>Notice Board</label>
+            <textarea id="notice-text" placeholder="Announcement..."></textarea>
+        </div>
 
-      <h2>Bench Rotation</h2>
-      <small>修改後按 Save 即可推送到 TV。</small>
-      <table>
-        <thead>
-          <tr>
-            <th>Bench</th>
-            <th>Staff</th>
-          </tr>
-        </thead>
-        <tbody id="bench-tbody"></tbody>
-      </table>
+        <!-- 2. Bench Rotation -->
+        <div class="control-group">
+            <label>Staff Rotation</label>
+            <div class="bench-inputs" id="bench-inputs">
+                <!-- JS Generated -->
+            </div>
+        </div>
+
+        <!-- 3. Layout Sliders (NEW) -->
+        <div class="control-group">
+            <label>Display Layout Adjustments (Slide to Resize)</label>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Notice Area Height</span>
+                    <span id="val-notice">15%</span>
+                </div>
+                <input type="range" id="rng-notice" min="5" max="50" step="1" value="15">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Bench Rotation Height</span>
+                    <span id="val-rotation">20%</span>
+                </div>
+                <input type="range" id="rng-rotation" min="5" max="60" step="1" value="20">
+            </div>
+            
+            <div style="text-align: right; font-size: 0.85rem; color: #888;">
+                Remaining space is for Kanban.
+            </div>
+        </div>
+
+        <!-- 4. Kanban Quick Edit (Simplified for now) -->
+        <div class="control-group">
+            <label>Kanban Tasks (Comma separated for quick add)</label>
+            <div class="kanban-edit-row">
+                <span class="k-title">To Do</span>
+                <input type="text" id="k-todo" placeholder="Task 1, Task 2...">
+            </div>
+            <div class="kanban-edit-row">
+                <span class="k-title">In Progress</span>
+                <input type="text" id="k-progress" placeholder="...">
+            </div>
+            <div class="kanban-edit-row">
+                <span class="k-title">Done</span>
+                <input type="text" id="k-done" placeholder="...">
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="save-btn">Save Changes</button>
+            <button id="refresh-btn">Refresh</button>
+        </div>
     </div>
 
-    <!-- Right: Kanban + Layout -->
-    <div class="card">
-      <h2>Kanban Tasks</h2>
-      <small>每行代表一個 task，空行會自動略過。</small>
+    <script>
+        const API_ENDPOINT = '/.netlify/functions/dashboard-state';
+        const benchesList = ["Hematology", "Cobas", "Cytology", "Immulite", "RIA", "Receiving", "Libero"];
 
-      <div class="kanban-grid">
-        <div>
-          <h3>To Do</h3>
-          <small>例如：追 QA report、call client 等</small>
-          <textarea id="todo-input" placeholder="One task per line"></textarea>
-        </div>
-        <div>
-          <h3>In Progress</h3>
-          <small>緊做緊嘅嘢</small>
-          <textarea
-            id="progress-input"
-            placeholder="One task per line"
-          ></textarea>
-        </div>
-        <div>
-          <h3>Done</h3>
-          <small>做完但仲想喺 TV 度顯示</small>
-          <textarea id="done-input" placeholder="One task per line"></textarea>
-        </div>
-      </div>
+        // Elements
+        const elNotice = document.getElementById('notice-text');
+        const divBenches = document.getElementById('bench-inputs');
+        const rngNotice = document.getElementById('rng-notice');
+        const rngRotation = document.getElementById('rng-rotation');
+        const valNotice = document.getElementById('val-notice');
+        const valRotation = document.getElementById('val-rotation');
+        const kTodo = document.getElementById('k-todo');
+        const kProgress = document.getElementById('k-progress');
+        const kDone = document.getElementById('k-done');
+        const btnSave = document.getElementById('save-btn');
+        const btnRefresh = document.getElementById('refresh-btn');
+        const elStatus = document.getElementById('status');
 
-      <hr class="divider" />
+        let currentState = null;
 
-      <div class="layout-section">
-        <h3>Layout Heights (vh)</h3>
-        <small>建議 Notice + Bench + Kanban 大約 55–65，Header 佔約 15。</small>
-        <div class="layout-grid">
-          <label>
-            Notice
-            <input
-              type="number"
-              id="layout-notice"
-              min="8"
-              max="25"
-              step="1"
-            />
-          </label>
-          <label>
-            Bench
-            <input
-              type="number"
-              id="layout-rotation"
-              min="10"
-              max="25"
-              step="1"
-            />
-          </label>
-          <label>
-            Kanban
-            <input
-              type="number"
-              id="layout-kanban"
-              min="15"
-              max="40"
-              step="1"
-            />
-          </label>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="save-btn">Save to Dashboard</button>
-        <button id="reload-btn" type="button">Reload from Server</button>
-        <span id="status"></span>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const API_URL = "/.netlify/functions/dashboard-state";
-
-    const benches = [
-      "Hematology",
-      "Cobas",
-      "Cytology",
-      "Immulite",
-      "RIA",
-      "Receiving",
-      "Libero",
-    ];
-    const staff = [
-      "-- Select --",
-      "Amparo",
-      "Sandra",
-      "Elsa / Laura",
-      "Grace",
-      "Amal",
-      "Hali",
-      "Shainy",
-      "Jason",
-      "OFF",
-    ];
-
-    const noticeInput = document.getElementById("notice-input");
-    const benchTbody = document.getElementById("bench-tbody");
-    const todoInput = document.getElementById("todo-input");
-    const progressInput = document.getElementById("progress-input");
-    const doneInput = document.getElementById("done-input");
-    const statusEl = document.getElementById("status");
-    const saveBtn = document.getElementById("save-btn");
-    const reloadBtn = document.getElementById("reload-btn");
-
-    const layoutNoticeInput = document.getElementById("layout-notice");
-    const layoutRotationInput = document.getElementById("layout-rotation");
-    const layoutKanbanInput = document.getElementById("layout-kanban");
-
-    const benchSelects = {};
-
-    // 布局高度 (跟 dashboard 一樣 default)
-    let layoutState = { notice: 13, rotation: 16, kanban: 24 };
-
-    function clamp(val, min, max) {
-      return Math.min(Math.max(val, min), max);
-    }
-
-    // 建 bench rows
-    function buildBenchRows() {
-      benchTbody.innerHTML = "";
-      benches.forEach((bench) => {
-        const tr = document.createElement("tr");
-
-        const nameTd = document.createElement("td");
-        nameTd.textContent = bench;
-
-        const selectTd = document.createElement("td");
-        const sel = document.createElement("select");
-        sel.className = "staff-select";
-
-        staff.forEach((person) => {
-          const opt = document.createElement("option");
-          opt.value = person;
-          opt.textContent = person;
-          sel.appendChild(opt);
-        });
-
-        benchSelects[bench] = sel;
-        selectTd.appendChild(sel);
-
-        tr.appendChild(nameTd);
-        tr.appendChild(selectTd);
-        benchTbody.appendChild(tr);
-      });
-    }
-
-    buildBenchRows();
-
-    function setStatus(msg, type) {
-      statusEl.textContent = msg || "";
-      statusEl.classList.remove("ok", "error");
-      if (type) statusEl.classList.add(type);
-    }
-
-    function splitLines(value) {
-      return (value || "")
-        .split("\n")
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-    }
-
-    function readLayoutFromInputs() {
-      const current = { ...layoutState };
-
-      let n = parseFloat(layoutNoticeInput.value);
-      let r = parseFloat(layoutRotationInput.value);
-      let k = parseFloat(layoutKanbanInput.value);
-
-      if (Number.isFinite(n)) current.notice = clamp(n, 8, 25);
-      if (Number.isFinite(r)) current.rotation = clamp(r, 10, 25);
-      if (Number.isFinite(k)) current.kanban = clamp(k, 15, 40);
-
-      layoutState = current;
-
-      layoutNoticeInput.value = layoutState.notice;
-      layoutRotationInput.value = layoutState.rotation;
-      layoutKanbanInput.value = layoutState.kanban;
-
-      return layoutState;
-    }
-
-    function applyLayoutToInputs(layout) {
-      if (layout && typeof layout === "object") {
-        const l = { ...layoutState };
-        ["notice", "rotation", "kanban"].forEach((k) => {
-          const v = parseFloat(layout[k]);
-          if (Number.isFinite(v)) l[k] = v;
-        });
-        layoutState = l;
-      }
-      layoutNoticeInput.value = layoutState.notice;
-      layoutRotationInput.value = layoutState.rotation;
-      layoutKanbanInput.value = layoutState.kanban;
-    }
-
-    function collectStateFromUI() {
-      const benchesState = {};
-      benches.forEach((bench) => {
-        const sel = benchSelects[bench];
-        benchesState[bench] = sel ? sel.value : "-- Select --";
-      });
-
-      const layout = readLayoutFromInputs();
-
-      return {
-        notice: noticeInput.value || "",
-        benches: benchesState,
-        kanban: {
-          "list-todo": splitLines(todoInput.value),
-          "list-progress": splitLines(progressInput.value),
-          "list-done": splitLines(doneInput.value),
-        },
-        layout,
-      };
-    }
-
-    function applyStateToUI(state) {
-      if (!state) return;
-
-      if (typeof state.notice === "string") {
-        noticeInput.value = state.notice;
-      }
-
-      if (state.benches) {
-        benches.forEach((bench) => {
-          const sel = benchSelects[bench];
-          if (sel && state.benches[bench]) {
-            sel.value = state.benches[bench];
-          }
-        });
-      }
-
-      const k = state.kanban || {};
-      todoInput.value = (k["list-todo"] || []).join("\n");
-      progressInput.value = (k["list-progress"] || []).join("\n");
-      doneInput.value = (k["list-done"] || []).join("\n");
-
-      applyLayoutToInputs(state.layout);
-    }
-
-    async function loadState() {
-      setStatus("Loading...", null);
-      try {
-        const res = await fetch(API_URL, { cache: "no-store" });
-        if (!res.ok) {
-          setStatus(`Load failed (${res.status})`, "error");
-          return;
+        // --- Helpers ---
+        function setStatus(msg, type) {
+            elStatus.textContent = msg;
+            elStatus.className = type;
+            if(type === 'success') setTimeout(() => elStatus.textContent = '', 3000);
         }
-        const state = await res.json();
-        applyStateToUI(state);
-        setStatus("Loaded latest state ✅", "ok");
-      } catch (err) {
-        console.error("Load error", err);
-        setStatus("Load error", "error");
-      }
-    }
 
-    async function saveState() {
-      const payload = collectStateFromUI();
-      setStatus("Saving...", null);
-      saveBtn.disabled = true;
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          setStatus(`Save failed (${res.status})`, "error");
-          return;
+        // --- Sliders UI ---
+        function updateSliderLabels() {
+            valNotice.textContent = rngNotice.value + '%';
+            valRotation.textContent = rngRotation.value + '%';
         }
-        const saved = await res.json();
-        applyStateToUI(saved);
-        setStatus("Saved & pushed to TV ✅", "ok");
-      } catch (err) {
-        console.error("Save error", err);
-        setStatus("Save error", "error");
-      } finally {
-        saveBtn.disabled = false;
-      }
-    }
+        rngNotice.addEventListener('input', updateSliderLabels);
+        rngRotation.addEventListener('input', updateSliderLabels);
 
-    saveBtn.addEventListener("click", saveState);
-    reloadBtn.addEventListener("click", loadState);
+        // --- Build Bench UI ---
+        function buildBenchUI() {
+            divBenches.innerHTML = '';
+            benchesList.forEach(bench => {
+                const wrap = document.createElement('div');
+                const lbl = document.createElement('div');
+                lbl.style.fontSize = '0.85rem';
+                lbl.style.marginBottom = '4px';
+                lbl.textContent = bench;
+                
+                const inp = document.createElement('input');
+                inp.type = 'text';
+                inp.dataset.bench = bench;
+                inp.placeholder = 'Staff Name';
+                
+                wrap.appendChild(lbl);
+                wrap.appendChild(inp);
+                divBenches.appendChild(wrap);
+            });
+        }
+        buildBenchUI();
 
-    // 初次載入拉一次
-    loadState();
-  </script>
+        // --- Data Logic ---
+        async function loadData() {
+            setStatus('Loading...', '');
+            try {
+                const res = await fetch(`${API_ENDPOINT}?t=${Date.now()}`);
+                if(!res.ok) throw new Error('Fetch failed');
+                currentState = await res.json();
+                populateUI(currentState);
+                setStatus('Ready', 'success');
+            } catch(e) {
+                setStatus('Error loading data', 'error');
+            }
+        }
+
+        function populateUI(data) {
+            if(!data) return;
+            
+            // Notice
+            elNotice.value = data.notice || '';
+
+            // Benches
+            const benchInputs = divBenches.querySelectorAll('input');
+            benchInputs.forEach(inp => {
+                const name = inp.dataset.bench;
+                if(data.benches && data.benches[name]) {
+                    inp.value = data.benches[name] === '-- Select --' ? '' : data.benches[name];
+                }
+            });
+
+            // Layout
+            if(data.layout) {
+                rngNotice.value = data.layout.noticePercent || 15;
+                rngRotation.value = data.layout.rotationPercent || 20;
+                updateSliderLabels();
+            }
+
+            // Kanban (Arrays to Comma String)
+            if(data.kanban) {
+                kTodo.value = (data.kanban['list-todo'] || []).join(', ');
+                kProgress.value = (data.kanban['list-progress'] || []).join(', ');
+                kDone.value = (data.kanban['list-done'] || []).join(', ');
+            }
+        }
+
+        async function saveData() {
+            setStatus('Saving...', '');
+            btnSave.disabled = true;
+
+            // Prepare Benches
+            const benches = {};
+            divBenches.querySelectorAll('input').forEach(inp => {
+                benches[inp.dataset.bench] = inp.value.trim() || '-- Select --';
+            });
+
+            // Prepare Kanban (String to Array)
+            const parseKanban = (str) => str.split(',').map(s => s.trim()).filter(s => s);
+            const kanban = {
+                'list-todo': parseKanban(kTodo.value),
+                'list-progress': parseKanban(kProgress.value),
+                'list-done': parseKanban(kDone.value)
+            };
+
+            const payload = {
+                notice: elNotice.value,
+                benches: benches,
+                kanban: kanban,
+                layout: {
+                    noticePercent: parseInt(rngNotice.value),
+                    rotationPercent: parseInt(rngRotation.value)
+                }
+            };
+
+            try {
+                const res = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if(!res.ok) throw new Error('Save failed');
+                setStatus('Saved!', 'success');
+                currentState = payload; // optimist update
+            } catch(e) {
+                setStatus('Error saving', 'error');
+            } finally {
+                btnSave.disabled = false;
+            }
+        }
+
+        btnRefresh.addEventListener('click', loadData);
+        btnSave.addEventListener('click', saveData);
+        loadData();
+
+    </script>
 </body>
 </html>

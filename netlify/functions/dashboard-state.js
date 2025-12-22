@@ -14,11 +14,12 @@ const benchesList = [
   "Libero",
 ];
 
-// 預設每個區塊高度 (vh)
+// 預設佈局 (單位為百分比 %)
+// Notice 和 Rotation 設定高度，Kanban 自動填滿剩餘空間
 const defaultLayout = {
-  notice: 13,
-  rotation: 16,
-  kanban: 24,
+  noticePercent: 15,    // 15% 高度
+  rotationPercent: 20,  // 20% 高度
+  // 剩餘 65% 給 Kanban
 };
 
 const defaultState = {
@@ -42,64 +43,60 @@ function corsHeaders() {
   };
 }
 
+// 確保數值是合理的百分比
 function normalizeLayout(lay) {
   const base = defaultLayout;
   const out = { ...base };
 
   if (!lay || typeof lay !== "object") return out;
 
-  const keys = ["notice", "rotation", "kanban"];
+  // 檢查 Notice %
+  let n = parseFloat(lay.noticePercent);
+  if (Number.isFinite(n) && n >= 5 && n <= 50) {
+    out.noticePercent = n;
+  }
 
-  keys.forEach((k) => {
-    let v = parseFloat(lay[k]);
-    if (!Number.isFinite(v)) {
-      v = base[k];
-    }
-
-    // 簡單夾一夾範圍，避免太誇張
-    if (k === "notice") v = Math.min(Math.max(v, 8), 25);
-    if (k === "rotation") v = Math.min(Math.max(v, 10), 25);
-    if (k === "kanban") v = Math.min(Math.max(v, 15), 40);
-
-    out[k] = v;
-  });
+  // 檢查 Rotation %
+  let r = parseFloat(lay.rotationPercent);
+  if (Number.isFinite(r) && r >= 5 && r <= 60) {
+    out.rotationPercent = r;
+  }
+  
+  // 確保兩者加起來不超過 90%，留至少 10% 給 Kanban
+  if (out.noticePercent + out.rotationPercent > 90) {
+    out.noticePercent = 15;
+    out.rotationPercent = 20;
+  }
 
   return out;
 }
 
-function mergeWithDefaults(raw) {
-  const incoming = raw || {};
-
-  // notice
-  const notice =
-    typeof incoming.notice === "string" ? incoming.notice : defaultState.notice;
-
-  // benches
+function mergeWithDefaults(incoming) {
+  if (!incoming) return defaultState;
+  
+  // 合併 benches
+  const benchesRaw = incoming.benches || {};
   const benches = {};
-  benchesList.forEach((name) => {
-    const v =
-      incoming.benches && typeof incoming.benches[name] === "string"
-        ? incoming.benches[name]
-        : defaultState.benches[name];
-    benches[name] = v;
+  benchesList.forEach(b => {
+    benches[b] = benchesRaw[b] || "-- Select --";
   });
 
-  // kanban
+  // 合併 kanban (保持陣列)
   const kanbanRaw = incoming.kanban || {};
   const kanban = {
-    "list-todo": Array.isArray(kanbanRaw["list-todo"])
-      ? kanbanRaw["list-todo"]
-      : [],
-    "list-progress": Array.isArray(kanbanRaw["list-progress"])
-      ? kanbanRaw["list-progress"]
-      : [],
+    "list-todo": Array.isArray(kanbanRaw["list-todo"]) ? kanbanRaw["list-todo"] : [],
+    "list-progress": Array.isArray(kanbanRaw["list-progress"]) ? kanbanRaw["list-progress"] : [],
     "list-done": Array.isArray(kanbanRaw["list-done"]) ? kanbanRaw["list-done"] : [],
   };
 
-  // layout
   const layout = normalizeLayout(incoming.layout);
 
-  return { notice, benches, kanban, layout };
+  return { 
+    notice: incoming.notice || "", 
+    benches, 
+    kanban, 
+    layout 
+  };
 }
 
 export default async (req, context) => {
@@ -140,14 +137,11 @@ export default async (req, context) => {
     const state = mergeWithDefaults(body);
     await store.setJSON(STATE_KEY, state);
 
-    return new Response(JSON.stringify(state), {
+    return new Response(JSON.stringify({ success: true, data: state }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders() },
     });
   }
 
-  return new Response("Method not allowed", {
-    status: 405,
-    headers: corsHeaders(),
-  });
+  return new Response("Method Not Allowed", { status: 405 });
 };
