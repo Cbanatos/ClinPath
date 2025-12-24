@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lab Dashboard TV Mode</title>
+  <title>Lab Dashboard TV Mode (4K Portrait)</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -12,9 +12,9 @@
       --card-bg: #1c1c1e;
       
       /* === Unified Color Palette: Ice Blue & Titanium === */
-      --accent: #40c4ff; /* Ice Blue - Primary Highlight */
+      --accent: #40c4ff;
       --text-main: #ffffff;
-      --border-radius: 12px;
+      --border-radius: 16px; /* Slightly rounder for 4K */
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,174 +24,173 @@
       height: 100vh; overflow: hidden; display: flex; flex-direction: column;
     }
 
-    /* === Responsive Header === */
+    /* === 4K Portrait Optimized Header === */
     header {
       flex: 0 0 auto; 
       display: flex; 
-      justify-content: space-between; 
+      /* Stack elements vertically for portrait mode */
+      flex-direction: column; 
+      justify-content: center; 
       align-items: center;
-      /* Padding scales with viewport width */
-      padding: 0 2vw; 
+      gap: 1vh;
+      
+      padding: 2vh 0; 
       background-color: #111; 
-      border-bottom: 1px solid #222;
-      /* Height scales with viewport height, min 80px */
-      height: 12vh; 
-      min-height: 80px;
+      border-bottom: 2px solid #222;
+      height: 20vh; /* Taller header for portrait */
       position: relative;
     }
     
-    /* === Dynamic Clock (Left) === */
-    /* clamp(min, preferred, max) - Adapts to screen width */
+    /* Top Row: Clock */
     .clock { 
-        font-size: clamp(2rem, 5vw, 3.8rem); 
+        font-size: 8vw; /* Massive font based on width */
         font-weight: 700; 
         color: var(--accent); 
-        letter-spacing: 2px; 
-        /* Removed fixed min-width to prevent overlap */
-        white-space: nowrap;
-        text-align: left; 
-        font-variant-numeric: tabular-nums; 
-        text-shadow: 0 0 20px rgba(64, 196, 255, 0.3);
-        z-index: 2; /* Ensure it stays on top */
+        letter-spacing: 4px; 
+        line-height: 1;
+        text-shadow: 0 0 30px rgba(64, 196, 255, 0.4);
+        z-index: 2;
     }
     
-    /* === Dynamic Center Info (Day & Date) === */
+    /* Middle Row: Date Info (Container) */
     .center-info {
-        position: absolute; 
-        left: 50%; 
-        transform: translateX(-50%);
+        position: static; /* Reset absolute positioning */
+        transform: none;
         display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center;
+        flex-direction: row; /* Day and Date side-by-side or stacked */
+        align-items: baseline; 
+        gap: 15px;
         z-index: 1;
-        white-space: nowrap;
     }
+    
     .current-day {
-        /* Responsive font size */
-        font-size: clamp(0.8rem, 1.2vw, 1.4rem);
+        font-size: 2.5vw;
         font-weight: 700; 
         color: #ffffff; opacity: 0.8;
         text-transform: uppercase; 
-        letter-spacing: clamp(1px, 0.3vw, 4px); 
-        margin-bottom: 2px;
+        letter-spacing: 3px; 
     }
+    
     .current-date {
-        /* Responsive font size */
-        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-size: 3.5vw;
         color: #fff; font-weight: 900; 
-        letter-spacing: 1px; text-transform: uppercase; line-height: 1;
+        letter-spacing: 2px; text-transform: uppercase;
     }
 
-    /* === Dynamic Weather (Right) === */
+    /* Bottom/Absolute: Weather (Moved to absolute top-right or integrated) */
+    /* For portrait, let's put weather in top-right corner absolutely to save vertical stack space */
     .weather-widget { 
+        position: absolute;
+        top: 2vh;
+        right: 3vw;
         display: flex; 
+        flex-direction: column; /* Stack icon and temp */
         align-items: center; 
-        gap: clamp(8px, 1.5vw, 15px); 
+        gap: 5px; 
         color: var(--text-main); 
-        z-index: 2;
     }
     .weather-icon { 
-        font-size: clamp(1.5rem, 3vw, 2.5rem); 
+        font-size: 4vw; 
         width: auto; 
-        text-align: center; 
     } 
     .weather-info { display: flex; flex-direction: column; align-items: flex-end; }
     .weather-temp { 
-        font-size: clamp(1.2rem, 2vw, 1.8rem); 
+        font-size: 3vw; 
         font-weight: 700; line-height: 1; 
     }
     .weather-forecast { 
-        font-size: clamp(0.6rem, 1vw, 0.9rem); 
+        font-size: 1.2vw; 
         color: #ffffff; opacity: 0.8; 
-        font-weight: 500; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px; 
-        white-space: nowrap;
+        font-weight: 500; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; 
     }
 
+    /* Resizers */
     .resizer {
-      flex: 0 0 8px; background: #111; cursor: row-resize; display: flex;
+      flex: 0 0 10px; background: #111; cursor: row-resize; display: flex;
       justify-content: center; align-items: center; transition: background 0.2s; z-index: 10;
     }
     .resizer:hover, .resizer.dragging { background: var(--accent); }
-    .resizer::after { content: ''; width: 40px; height: 4px; background: #333; border-radius: 2px; }
+    .resizer::after { content: ''; width: 80px; height: 6px; background: #333; border-radius: 3px; }
 
-    section { padding: 10px 20px; overflow: hidden; display: flex; flex-direction: column; }
+    section { padding: 1.5vh 3vw; overflow: hidden; display: flex; flex-direction: column; }
     
     h2 { 
-        font-size: 1.2rem; margin-bottom: 10px; 
+        font-size: 2.5vh; margin-bottom: 1.5vh; 
         color: #ffffff; opacity: 0.9;
-        text-transform: uppercase; letter-spacing: 2px; flex: 0 0 auto; 
-        border-left: 3px solid var(--accent); padding-left: 10px; 
+        text-transform: uppercase; letter-spacing: 3px; flex: 0 0 auto; 
+        border-left: 6px solid var(--accent); padding-left: 15px; 
     }
 
+    /* === Notice Area (Larger Text) === */
     #notice-area {
       width: 100%; height: 100%; background: transparent; border: none;
-      color: var(--text-main); font-size: 2.5rem; font-weight: 700;
+      color: var(--text-main); font-size: 4vw; font-weight: 700;
       text-align: center; line-height: 1.4; overflow-y: auto;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
     }
-    #notice-area font[size="7"] { font-size: 200%; line-height: 1.1; }
     
+    /* === Bench Grid (Taller Cards) === */
     .bench-grid {
-      display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 15px; height: 100%; overflow-x: auto; overflow-y: hidden;
+      display: grid; 
+      grid-auto-flow: column; 
+      grid-auto-columns: minmax(0, 1fr); 
+      gap: 20px; 
+      height: 100%; 
+      overflow-x: auto; overflow-y: hidden;
     }
     
     .bench-card {
-      background: var(--card-bg); padding: 12px; border-radius: var(--border-radius);
-      border-top: 3px solid var(--accent);
+      background: var(--card-bg); padding: 20px; border-radius: var(--border-radius);
+      border-top: 5px solid var(--accent);
       display: flex; flex-direction: column; justify-content: center; min-width: 0;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       container-type: inline-size;
     }
     
     .bench-name { 
-        font-size: 0.85rem; 
+        font-size: 1.2rem; 
         color: #ffffff; opacity: 0.7;
-        margin-bottom: 6px; 
+        margin-bottom: 10px; 
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
         text-transform: uppercase; letter-spacing: 1px; 
     }
     
     .bench-staff { 
-        font-size: clamp(1rem, 15cqi, 2.5rem); 
+        /* Aggressive scaling for portrait width */
+        font-size: clamp(1.5rem, 18cqi, 4rem); 
         font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
     }
 
+    /* === Kanban (Vertical optimized) === */
     #kanban-section { flex: 1 1 auto; min-height: 0; }
-    .kanban-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; height: 100%; min-height: 0; }
-    .kanban-col { background: var(--card-bg); border-radius: var(--border-radius); padding: 12px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    /* In portrait, columns might get narrow. Let's keep 3 columns but ensure gap is good */
+    .kanban-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; height: 100%; min-height: 0; }
+    .kanban-col { background: var(--card-bg); border-radius: var(--border-radius); padding: 20px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
     
     .col-header { 
-        padding-bottom: 12px; border-bottom: 1px solid #333; margin-bottom: 12px; 
+        padding-bottom: 15px; border-bottom: 2px solid #333; margin-bottom: 15px; 
         font-weight: 700; display: flex; justify-content: space-between; align-items: center;
         color: #fff;
-        font-size: 1.1rem;
-        letter-spacing: 0.5px;
+        font-size: 2.2vh; /* Use vh for font size in vertical mode to ensure readability */
+        letter-spacing: 1px;
     }
     .col-header span {
-        background: #333; padding: 2px 8px; border-radius: 4px; font-size: 0.9rem; color: var(--accent);
+        background: #333; padding: 4px 12px; border-radius: 6px; font-size: 1.8vh; color: var(--accent);
     }
     
     .task-list { flex: 1; overflow-y: auto; padding-right: 5px; }
     .task-card { 
-        background: #252528; padding: 14px; margin-bottom: 10px; border-radius: 8px; 
-        font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-        display: flex; flex-direction: column; gap: 6px;
-        border-left: 3px solid #444;
+        background: #252528; padding: 20px; margin-bottom: 15px; border-radius: 10px; 
+        font-size: 2vh; /* Large readable text */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+        display: flex; flex-direction: column; gap: 8px;
+        border-left: 5px solid #444;
     }
-    .task-text { color: #eee; line-height: 1.3; }
+    .task-text { color: #eee; line-height: 1.4; }
     .task-staff { 
-        font-size: 0.8rem; color: #000; background-color: var(--accent);
-        padding: 3px 10px; border-radius: 12px; align-self: flex-start; 
+        font-size: 1.5vh; color: #000; background-color: var(--accent);
+        padding: 4px 12px; border-radius: 12px; align-self: flex-start; 
         font-weight: bold; text-transform: uppercase;
-    }
-
-    /* === Mobile/Small Screen Adjustment === */
-    @media (max-width: 768px) {
-        /* Hide Day of week on very small screens to save space */
-        .current-day { display: none; }
-        /* Shrink header slightly */
-        header { height: 10vh; padding: 0 10px; }
     }
   </style>
 </head>
@@ -216,7 +215,7 @@
   </section>
   <div class="resizer" id="resizer-1"></div>
 
-  <section id="rotation-section" style="flex-basis: 20%;">
+  <section id="rotation-section" style="flex-basis: 18%;">
     <h2>Bench Rotation</h2>
     <div class="bench-grid" id="bench-container"></div>
   </section>
@@ -271,27 +270,26 @@
     }
 
     // Weather & Clock & Date
-    // WMO Weather Codes with COLORS
     const weatherMap = { 
-        0: { icon: 'fa-sun', text: 'Clear', color: '#f1c40f' },          // Sunny Yellow
+        0: { icon: 'fa-sun', text: 'Clear', color: '#f1c40f' },          
         1: { icon: 'fa-cloud-sun', text: 'Mainly Clear', color: '#f1c40f' }, 
         2: { icon: 'fa-cloud-sun', text: 'Partly Cloudy', color: '#f1c40f' }, 
-        3: { icon: 'fa-cloud', text: 'Overcast', color: '#bdc3c7' },     // Cloudy Grey
+        3: { icon: 'fa-cloud', text: 'Overcast', color: '#bdc3c7' },     
         45: { icon: 'fa-smog', text: 'Fog', color: '#bdc3c7' }, 
         48: { icon: 'fa-smog', text: 'Fog', color: '#bdc3c7' },
-        51: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' }, // Rain Blue
+        51: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' }, 
         53: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' },
         55: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' },
         61: { icon: 'fa-cloud-showers-heavy', text: 'Rain', color: '#3498db' },
         63: { icon: 'fa-cloud-showers-heavy', text: 'Rain', color: '#3498db' },
         65: { icon: 'fa-cloud-showers-heavy', text: 'Heavy Rain', color: '#3498db' },
-        71: { icon: 'fa-snowflake', text: 'Snow', color: '#00d2ff' },    // Snow Cyan
+        71: { icon: 'fa-snowflake', text: 'Snow', color: '#00d2ff' },    
         73: { icon: 'fa-snowflake', text: 'Snow', color: '#00d2ff' },
         75: { icon: 'fa-snowflake', text: 'Heavy Snow', color: '#00d2ff' },
         80: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' },
         81: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' },
         82: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' },
-        95: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' }, // Storm Purple
+        95: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' }, 
         96: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' },
         99: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' }
     };
@@ -302,7 +300,6 @@
         const data = await res.json();
         const wmo = weatherMap[data.current_weather.weathercode] || { icon: 'fa-cloud', text: 'Unknown', color: '#fff' };
         
-        // Apply color inline
         document.getElementById('weather-widget').innerHTML = `
             <i class="fa-solid ${wmo.icon} weather-icon" style="color: ${wmo.color}"></i>
             <div class="weather-info">
@@ -320,7 +317,6 @@
     }
     setInterval(updateClock, 1000); updateClock(); fetchWeather(); setInterval(fetchWeather, 300000);
 
-    // Rendering
     function initBenches() {
       benchContainer.innerHTML = "";
       benchList.forEach(b => {
