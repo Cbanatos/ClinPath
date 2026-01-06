@@ -5,12 +5,12 @@ const STORE_NAME = "lab-dashboard";
 const STATE_KEY = "state";
 
 const benchesList = [
-  "Hematology",
+  "Hema",
   "Cobas",
-  "Cytology",
+  "Cyto",
   "Immulite",
   "RIA",
-  "Receiving",
+  "Recei",
   "Libero",
 ];
 

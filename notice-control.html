@@ -231,14 +231,14 @@
 
     <script>
         const API_ENDPOINT = '/.netlify/functions/dashboard-state';
-        const benchesList = ["Hematology", "Cobas", "Cytology", "Immulite", "RIA", "Receiving", "Libero"];
+        const benchesList = ["Hema", "Cobas", "Cyto", "Immulite", "RIA", "Recei", "Libero"];
         const kanbanLists = ["todo", "progress", "done"];
 
         // MOCK DATA for preview
         const MOCK_STATE = {
             notice: "<div style='text-align:center'>Welcome to <b>Lab Dashboard</b></div>",
             staff: ["Alice", "Bob", "Charlie", "Dave", "Eve"],
-            benches: { "Hematology": "Alice", "Cobas": "Bob" },
+            benches: { "Hema": "Alice", "Cobas": "Bob" },
             kanban: { "list-todo": [{id:1, text:"Review QC", staff:"Alice"}], "list-progress":[], "list-done":[] },
             layout: { noticePercent: 15, rotationPercent: 20 },
             lastCorrectionDate: Date.now() - (1000 * 60 * 60 * 24 * 5) // 5 days ago mock

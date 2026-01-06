@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lab Dashboard TV Mode (4K Portrait)</title>
+  <title>Lab Dashboard TV Mode (4K Portrait Optimized)</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -12,10 +12,11 @@
       --card-bg: #1c1c1e;
       --accent: #40c4ff;
       --text-main: #ffffff;
-      --border-radius: 16px;
+      --border-radius: 12px;
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
       font-family: "Roboto", sans-serif;
       background-color: var(--bg-color); color: var(--text-main);
@@ -26,102 +27,176 @@
     header {
       flex: 0 0 auto; 
       display: flex; flex-direction: column; justify-content: center; align-items: center;
-      gap: 1vh; padding: 2vh 0; background-color: #111; border-bottom: 2px solid #222;
-      height: 18vh; position: relative;
+      gap: 0.2vh; 
+      padding: 1.5vh 0; 
+      background-color: #111; 
+      border-bottom: 2px solid #222;
+      height: 14vh; 
+      position: relative;
     }
+    
     .clock { 
-        font-size: 8vw; font-weight: 700; color: var(--accent); letter-spacing: 4px; line-height: 1;
-        text-shadow: 0 0 30px rgba(64, 196, 255, 0.4); z-index: 2;
+        font-size: 11vw; 
+        font-weight: 700; color: var(--accent); 
+        letter-spacing: 2px; line-height: 0.9;
+        text-shadow: 0 0 20px rgba(64, 196, 255, 0.4); 
+        z-index: 2;
     }
+    
     .center-info {
-        display: flex; flex-direction: row; align-items: baseline; gap: 15px; z-index: 1;
+        display: flex; flex-direction: row; align-items: baseline; gap: 2vw; z-index: 1;
+        margin-top: 0.5vh;
     }
+    
     .current-day {
-        font-size: 2.5vw; font-weight: 700; color: #ffffff; opacity: 0.8; text-transform: uppercase; letter-spacing: 3px; 
+        font-size: 3vw; 
+        font-weight: 700; color: #ffffff; opacity: 0.8; 
+        text-transform: uppercase; letter-spacing: 0.3vw; 
     }
+    
     .current-date {
-        font-size: 3.5vw; color: #fff; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+        font-size: 3vw; 
+        color: #fff; font-weight: 900; 
+        letter-spacing: 0.1vw; text-transform: uppercase;
     }
+    
     .weather-widget { 
-        position: absolute; top: 2vh; right: 3vw; display: flex; flex-direction: column; 
-        align-items: center; gap: 5px; color: var(--text-main); 
+        position: absolute; top: 1.5vh; right: 2vw; 
+        display: flex; flex-direction: column; align-items: center; 
+        gap: 0.3vh; color: var(--text-main); 
     }
-    .weather-icon { font-size: 4vw; width: auto; } 
+    .weather-icon { font-size: 3.5vw; width: auto; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); } 
     .weather-info { display: flex; flex-direction: column; align-items: flex-end; }
-    .weather-temp { font-size: 3vw; font-weight: 700; line-height: 1; }
+    .weather-temp { font-size: 2.5vw; font-weight: 700; line-height: 1; }
     .weather-forecast { 
-        font-size: 1.2vw; color: #ffffff; opacity: 0.8; font-weight: 500; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; 
+        font-size: 1.2vw; color: #ffffff; opacity: 0.8; font-weight: 500; 
+        text-transform: uppercase; margin-top: 0.2vh;
+    }
+
+    /* === Section Styling === */
+    section { 
+        padding: 1vh 3vw; 
+        overflow: hidden; 
+        display: flex; flex-direction: column; 
+    }
+    
+    h2 { 
+        font-size: 2.2vh; 
+        margin-bottom: 1vh; color: #ffffff; opacity: 0.9;
+        text-transform: uppercase; letter-spacing: 0.2vw; 
+        flex: 0 0 auto; 
+        border-left: 0.6vw solid var(--accent); padding-left: 1.2vw; 
+    }
+
+    /* === Notice Board === */
+    #notice-area {
+      width: 100%; height: 100%; background: transparent; border: none;
+      color: var(--text-main); 
+      font-size: 2.5vw; 
+      line-height: 1.5; font-weight: 700;
+      text-align: center; 
+      overflow-y: auto;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      word-wrap: break-word; white-space: pre-wrap; 
+    }
+
+    /* === Bench Rotation (Fixing Truncation) === */
+    .bench-grid { 
+        display: grid; 
+        grid-auto-flow: column; 
+        grid-auto-columns: minmax(0, 1fr); 
+        gap: 1.5vw; 
+        height: 100%; 
+        overflow-x: auto; overflow-y: hidden; 
+    }
+    
+    .bench-card {
+      background: var(--card-bg); 
+      /* Reduced padding to give text more room */
+      padding: 1vh 0.5vw; 
+      border-radius: var(--border-radius);
+      border-top: 0.5vh solid var(--accent); 
+      display: flex; flex-direction: column; justify-content: center; 
+      min-width: 0;
+      box-shadow: 0 0.5vh 1vh rgba(0,0,0,0.3); 
+      container-type: size; 
+    }
+    
+    .bench-name { 
+        font-size: 2vw; 
+        font-weight: 700;
+        color: #ffffff; opacity: 0.9; margin-bottom: 1vh; 
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        text-transform: uppercase; letter-spacing: 1px; 
+        text-align: center;
+    }
+    
+    .bench-staff { 
+        /* UPDATED: Lower cqi value (11) allows text to shrink more for long names */
+        /* clamp(min, preferred, max) */
+        font-size: clamp(1rem, 11cqi, 3.5vw); 
+        font-weight: 700; color: #fff; 
+        white-space: nowrap; 
+        text-align: center;
+        width: 100%;
+        line-height: 1.2; /* Prevent vertical clipping */
+    }
+
+    /* === Kanban === */
+    #kanban-section { flex: 1 1 auto; min-height: 0; }
+    .kanban-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2vw; height: 100%; min-height: 0; }
+    .kanban-col { background: var(--card-bg); border-radius: var(--border-radius); padding: 1.2vh; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    
+    .col-header { 
+        padding-bottom: 1vh; border-bottom: 1px solid #333; margin-bottom: 1vh; 
+        font-weight: 700; display: flex; justify-content: space-between; align-items: center;
+        color: #fff; font-size: 1.8vh; 
+        letter-spacing: 1px;
+    }
+    .col-header span { background: #333; padding: 0.3vh 0.8vw; border-radius: 6px; font-size: 1.5vh; color: var(--accent); }
+    
+    .task-list { flex: 1; overflow-y: auto; padding-right: 5px; }
+    
+    .task-card { 
+        background: #252528; padding: 1.5vh; margin-bottom: 1vh; border-radius: 8px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        display: flex; flex-direction: column; gap: 0.5vh; 
+        border-left: 0.6vw solid #444;
+    }
+    
+    .task-text { 
+        color: #eee; line-height: 1.3; 
+        font-size: 1.6vh; 
+        word-wrap: break-word; font-weight: 400;
+    }
+    
+    .task-staff { 
+        font-size: 1.3vh; color: #000; background-color: var(--accent);
+        padding: 0.3vh 1.2vw; border-radius: 2vh; align-self: flex-start; 
+        font-weight: 800; text-transform: uppercase;
+    }
+
+    /* === Footer === */
+    footer {
+        flex: 0 0 auto; height: 10vh; background-color: #111; border-top: 2px solid #222;
+        display: flex; justify-content: center; align-items: center; padding: 0 3vw;
+    }
+    .counter-container { display: flex; align-items: baseline; gap: 2vw; }
+    .counter-val {
+        font-size: 5vh; font-weight: 900; color: var(--accent); line-height: 1;
+        text-shadow: 0 0 15px rgba(64, 196, 255, 0.4);
+    }
+    .counter-label {
+        font-size: 2vh; font-weight: 700; color: #fff; opacity: 0.8; 
+        text-transform: uppercase; letter-spacing: 0.2vw;
     }
 
     .resizer {
-      flex: 0 0 10px; background: #111; cursor: row-resize; display: flex;
-      justify-content: center; align-items: center; transition: background 0.2s; z-index: 10;
+      flex: 0 0 1vh; background: #111; cursor: row-resize; display: flex;
+      justify-content: center; align-items: center; z-index: 10;
     }
-    .resizer:hover, .resizer.dragging { background: var(--accent); }
-    .resizer::after { content: ''; width: 80px; height: 6px; background: #333; border-radius: 3px; }
+    .resizer::after { content: ''; width: 10vw; height: 0.4vh; background: #333; border-radius: 1vh; }
 
-    section { padding: 1.5vh 3vw; overflow: hidden; display: flex; flex-direction: column; }
-    h2 { 
-        font-size: 2.5vh; margin-bottom: 1.5vh; color: #ffffff; opacity: 0.9;
-        text-transform: uppercase; letter-spacing: 3px; flex: 0 0 auto; 
-        border-left: 6px solid var(--accent); padding-left: 15px; 
-    }
-
-    #notice-area {
-      width: 100%; height: 100%; background: transparent; border: none;
-      color: var(--text-main); font-size: 4vw; font-weight: 700;
-      text-align: center; line-height: 1.4; overflow-y: auto;
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-    }
-    
-    .bench-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 20px; height: 100%; overflow-x: auto; overflow-y: hidden; }
-    .bench-card {
-      background: var(--card-bg); padding: 20px; border-radius: var(--border-radius);
-      border-top: 5px solid var(--accent); display: flex; flex-direction: column; justify-content: center; min-width: 0;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3); container-type: inline-size;
-    }
-    .bench-name { 
-        font-size: 1.2rem; color: #ffffff; opacity: 0.7; margin-bottom: 10px; 
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 1px; 
-    }
-    .bench-staff { 
-        font-size: clamp(1.5rem, 18cqi, 4rem); font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-    }
-
-    #kanban-section { flex: 1 1 auto; min-height: 0; }
-    .kanban-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; height: 100%; min-height: 0; }
-    .kanban-col { background: var(--card-bg); border-radius: var(--border-radius); padding: 20px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-    .col-header { 
-        padding-bottom: 15px; border-bottom: 2px solid #333; margin-bottom: 15px; 
-        font-weight: 700; display: flex; justify-content: space-between; align-items: center;
-        color: #fff; font-size: 2.2vh; letter-spacing: 1px;
-    }
-    .col-header span { background: #333; padding: 4px 12px; border-radius: 6px; font-size: 1.8vh; color: var(--accent); }
-    .task-list { flex: 1; overflow-y: auto; padding-right: 5px; }
-    .task-card { 
-        background: #252528; padding: 20px; margin-bottom: 15px; border-radius: 10px; 
-        font-size: 2vh; box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-        display: flex; flex-direction: column; gap: 8px; border-left: 5px solid #444;
-    }
-    .task-text { color: #eee; line-height: 1.4; }
-    .task-staff { 
-        font-size: 1.5vh; color: #000; background-color: var(--accent);
-        padding: 4px 12px; border-radius: 12px; align-self: flex-start; font-weight: bold; text-transform: uppercase;
-    }
-
-    /* === Counter Footer === */
-    footer {
-        flex: 0 0 auto; height: 10vh; background-color: #111; border-top: 2px solid #222;
-        display: flex; justify-content: center; align-items: center; padding: 0 20px;
-    }
-    .counter-container { display: flex; align-items: baseline; gap: 15px; }
-    .counter-val {
-        font-size: 6vh; font-weight: 900; color: var(--accent); line-height: 1;
-        text-shadow: 0 0 15px rgba(64, 196, 255, 0.3);
-    }
-    .counter-label {
-        font-size: 2.2vh; font-weight: 700; color: #fff; opacity: 0.9; text-transform: uppercase; letter-spacing: 2px;
-    }
   </style>
 </head>
 <body>
@@ -166,15 +241,13 @@
 
   <script>
     const API_URL = "/.netlify/functions/dashboard-state";
-    const benchList = ["Hematology", "Cobas", "Cytology", "Immulite", "RIA", "Receiving", "Libero"];
+    const benchList = ["Hema", "Cobas", "Cyto", "Immulite", "RIA", "Recei", "Libero"];
     const noticeSection = document.getElementById('notice-section');
     const rotationSection = document.getElementById('rotation-section');
     const noticeArea = document.getElementById('notice-area');
     const benchContainer = document.getElementById('bench-container');
     const daysCounter = document.getElementById('days-counter');
     let currentState = null;
-    
-    // Lock variable to prevent jumpy layout updates
     let lastLayoutUpdate = 0;
 
     function setupResizers() {
@@ -199,10 +272,7 @@
     }
     async function saveCurrentLayout() {
         if(!currentState) return;
-        
-        // Record timestamp of local update
         lastLayoutUpdate = Date.now();
-        
         const h = document.body.clientHeight;
         const layout = {
             noticePercent: (noticeSection.offsetHeight/h)*100,
@@ -212,14 +282,41 @@
         try { await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(currentState) }); } catch(e) {}
     }
 
-    // Weather & Clock
-    const weatherMap = { 0: { icon: 'fa-sun', text: 'Clear', color: '#f1c40f' }, 1: { icon: 'fa-cloud-sun', text: 'Mainly Clear', color: '#f1c40f' }, 2: { icon: 'fa-cloud-sun', text: 'Partly Cloudy', color: '#f1c40f' }, 3: { icon: 'fa-cloud', text: 'Overcast', color: '#bdc3c7' }, 45: { icon: 'fa-smog', text: 'Fog', color: '#bdc3c7' }, 48: { icon: 'fa-smog', text: 'Fog', color: '#bdc3c7' }, 51: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' }, 53: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' }, 55: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' }, 61: { icon: 'fa-cloud-showers-heavy', text: 'Rain', color: '#3498db' }, 63: { icon: 'fa-cloud-showers-heavy', text: 'Rain', color: '#3498db' }, 65: { icon: 'fa-cloud-showers-heavy', text: 'Heavy Rain', color: '#3498db' }, 71: { icon: 'fa-snowflake', text: 'Snow', color: '#00d2ff' }, 73: { icon: 'fa-snowflake', text: 'Snow', color: '#00d2ff' }, 75: { icon: 'fa-snowflake', text: 'Heavy Snow', color: '#00d2ff' }, 80: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' }, 81: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' }, 82: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' }, 95: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' }, 96: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' }, 99: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' } };
+    const weatherMap = { 
+        0: { icon: 'fa-sun', text: 'Clear', color: '#f1c40f' },          
+        1: { icon: 'fa-cloud-sun', text: 'Mainly Clear', color: '#f1c40f' }, 
+        2: { icon: 'fa-cloud-sun', text: 'Partly Cloudy', color: '#f1c40f' }, 
+        3: { icon: 'fa-cloud', text: 'Overcast', color: '#bdc3c7' },     
+        45: { icon: 'fa-smog', text: 'Fog', color: '#bdc3c7' }, 
+        48: { icon: 'fa-smog', text: 'Fog', color: '#bdc3c7' },
+        51: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' }, 
+        53: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' },
+        55: { icon: 'fa-cloud-rain', text: 'Drizzle', color: '#3498db' },
+        61: { icon: 'fa-cloud-showers-heavy', text: 'Rain', color: '#3498db' },
+        63: { icon: 'fa-cloud-showers-heavy', text: 'Rain', color: '#3498db' },
+        65: { icon: 'fa-cloud-showers-heavy', text: 'Heavy Rain', color: '#3498db' },
+        71: { icon: 'fa-snowflake', text: 'Snow', color: '#00d2ff' },    
+        73: { icon: 'fa-snowflake', text: 'Snow', color: '#00d2ff' },
+        75: { icon: 'fa-snowflake', text: 'Heavy Snow', color: '#00d2ff' },
+        80: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' },
+        81: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' },
+        82: { icon: 'fa-cloud-showers-heavy', text: 'Showers', color: '#3498db' },
+        95: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' }, 
+        96: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' }, 
+        99: { icon: 'fa-bolt', text: 'Thunderstorm', color: '#9b59b6' } 
+    };
+
     async function fetchWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=43.54&longitude=-80.25&current_weather=true&hourly=weathercode&timezone=auto");
         const data = await res.json();
         const wmo = weatherMap[data.current_weather.weathercode] || { icon: 'fa-cloud', text: 'Unknown', color: '#fff' };
-        document.getElementById('weather-widget').innerHTML = `<i class="fa-solid ${wmo.icon} weather-icon" style="color: ${wmo.color}"></i><div class="weather-info"><div class="weather-temp">${Math.round(data.current_weather.temperature)}°C</div><div class="weather-forecast">${wmo.text}</div></div>`;
+        document.getElementById('weather-widget').innerHTML = `
+            <i class="fa-solid ${wmo.icon} weather-icon" style="color: ${wmo.color}"></i>
+            <div class="weather-info">
+                <div class="weather-temp">${Math.round(data.current_weather.temperature)}°C</div>
+                <div class="weather-forecast">${wmo.text}</div>
+            </div>`;
       } catch (e) {}
     }
     function updateClock() { 
@@ -256,17 +353,13 @@
     function applyState(state) {
       if(!state) return;
       currentState = state;
-      
-      // Update Layout ONLY if we haven't manually adjusted it in the last 3 seconds
       if(state.layout && (Date.now() - lastLayoutUpdate > 3000)) {
           if(state.layout.noticePercent) noticeSection.style.flexBasis = `${state.layout.noticePercent}%`;
           if(state.layout.rotationPercent) rotationSection.style.flexBasis = `${state.layout.rotationPercent}%`;
       }
-      
       noticeArea.innerHTML = state.notice || "";
       if(state.benches) benchList.forEach(b => { const el = document.getElementById(`bench-${b}`); if(el) el.innerText = state.benches[b] || "--"; });
       renderKanban(state.kanban);
-      
       if(state.lastCorrectionDate) {
           const diff = Date.now() - state.lastCorrectionDate;
           const days = Math.floor(diff / (1000 * 60 * 60 * 24));
