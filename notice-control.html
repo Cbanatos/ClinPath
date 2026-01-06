@@ -91,6 +91,18 @@
         .kanban-add-area input { margin-bottom: 8px; font-size: 0.9rem; padding: 8px; }
         .small-help { font-size: 0.75rem; color: #666; margin-bottom: 4px; }
 
+        /* === Safety Stats === */
+        .safety-box {
+            background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .safety-info { font-weight: bold; color: #555; }
+        .btn-reset { 
+            background: #fdfdfd; border: 1px solid #e74c3c; color: #e74c3c; 
+            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .btn-reset:hover { background: #fdedec; }
+
         .actions { display: flex; gap: 10px; margin-top: 20px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .btn-primary { background-color: #2ecc71; color: white; }
@@ -201,6 +213,15 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Safety Counter -->
+        <div class="control-group">
+            <label>🛡️ Safety Stats</label>
+            <div class="safety-box">
+                <div class="safety-info">Current: <span id="safety-count-disp">0</span> days since report correction</div>
+                <button type="button" class="btn-reset" id="reset-counter-btn">Reset to 0 Days</button>
+            </div>
+        </div>
 
         <div class="actions">
             <button class="btn-primary" id="save-btn">Save Changes</button>
@@ -219,12 +240,14 @@
             staff: ["Alice", "Bob", "Charlie", "Dave", "Eve"],
             benches: { "Hematology": "Alice", "Cobas": "Bob" },
             kanban: { "list-todo": [{id:1, text:"Review QC", staff:"Alice"}], "list-progress":[], "list-done":[] },
-            layout: { noticePercent: 15, rotationPercent: 20 }
+            layout: { noticePercent: 15, rotationPercent: 20 },
+            lastCorrectionDate: Date.now() - (1000 * 60 * 60 * 24 * 5) // 5 days ago mock
         };
 
         let staffList = [];
         let kanbanData = { "todo": [], "progress": [], "done": [] };
         let currentState = null;
+        let cachedLastCorrectionDate = Date.now();
 
         // Elements
         const elEditor = document.getElementById('notice-editor');
@@ -235,6 +258,8 @@
         const btnSave = document.getElementById('save-btn');
         const btnRefresh = document.getElementById('refresh-btn');
         const elStatus = document.getElementById('status');
+        const btnResetCounter = document.getElementById('reset-counter-btn');
+        const elSafetyDisp = document.getElementById('safety-count-disp');
 
         window.fmt = (cmd, val) => { document.execCommand(cmd, false, val); elEditor.focus(); };
 
@@ -358,6 +383,23 @@
         }
         window.moveKanbanTask = moveKanbanTask; window.removeKanbanTask = removeKanbanTask;
 
+        // --- Safety Counter Logic ---
+        function updateSafetyDisplay() {
+            if(!cachedLastCorrectionDate) cachedLastCorrectionDate = Date.now();
+            const diff = Date.now() - cachedLastCorrectionDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            elSafetyDisp.innerText = Math.max(0, days);
+        }
+        
+        btnResetCounter.addEventListener('click', () => {
+           if(confirm("Are you sure you want to reset the counter to 0 days?")) {
+               cachedLastCorrectionDate = Date.now();
+               updateSafetyDisplay();
+               // We don't save immediately, user must click Save Changes to commit
+               setStatus("Counter reset. Click 'Save Changes' to apply.", "demo-mode");
+           }
+        });
+
         // --- Load & Save ---
         async function loadData() {
             setStatus('Connecting...', '');
@@ -392,6 +434,10 @@
                 kanbanData.done = data.kanban['list-done'] || [];
                 kanbanLists.forEach(k => renderKanbanList(k));
             }
+            
+            // Safety Counter
+            cachedLastCorrectionDate = data.lastCorrectionDate || Date.now();
+            updateSafetyDisplay();
         }
 
         async function saveData() {
@@ -405,6 +451,7 @@
                 staff: staffList,
                 benches: benches,
                 kanban: { 'list-todo': kanbanData.todo, 'list-progress': kanbanData.progress, 'list-done': kanbanData.done },
+                lastCorrectionDate: cachedLastCorrectionDate, // Save the counter timestamp
                 layout: (currentState && currentState.layout) ? currentState.layout : { noticePercent: 15, rotationPercent: 20 }
             };
             try {

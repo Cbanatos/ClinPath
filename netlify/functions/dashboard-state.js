@@ -31,6 +31,8 @@ const defaultState = {
     "list-progress": [],
     "list-done": [],
   },
+  // New: Timestamp for the counter (defaults to now)
+  lastCorrectionDate: Date.now(),
   layout: defaultLayout,
 };
 
@@ -53,7 +55,6 @@ function normalizeLayout(lay) {
   let r = parseFloat(lay.rotationPercent);
   if (Number.isFinite(r) && r >= 5 && r <= 60) out.rotationPercent = r;
   
-  // 確保總和不超過 100% (留給 Kanban)
   if (out.noticePercent + out.rotationPercent > 90) {
     out.noticePercent = 15;
     out.rotationPercent = 20;
@@ -82,11 +83,15 @@ function mergeWithDefaults(incoming) {
   const staff = Array.isArray(incoming.staff) ? incoming.staff : defaultState.staff;
   const layout = normalizeLayout(incoming.layout);
   
+  // Handle new field
+  const lastCorrectionDate = incoming.lastCorrectionDate || defaultState.lastCorrectionDate;
+  
   return { 
     notice: incoming.notice || "", 
     staff, 
     benches, 
     kanban, 
+    lastCorrectionDate, // Export
     layout 
   };
 }
